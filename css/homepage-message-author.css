@@ -1,0 +1,7 @@
+.homepage-message-author {
+    font-weight: 500;
+    color: var(--foreground-0);
+    margin: 0;
+    font-size: 18px;
+    width: max-content;
+}

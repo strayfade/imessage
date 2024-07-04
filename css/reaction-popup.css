@@ -1,0 +1,33 @@
+.reaction-popup {
+    position: absolute;
+    width: 80vw;
+    height: 56px;
+    background-color: var(--recipient);
+    border-radius: 100px;
+    top: calc(-5px - 56px);
+    display: flex;
+    z-index: 10;
+    box-shadow: 0px 0px 0px 2000px rgba(0, 0, 0, 0.8);
+}
+.reaction-popup-sender {
+    right: 0;
+}
+.reaction-popup-recipient {
+    left: 0;
+}
+.reaction-popup span {
+    color: var(--foreground-1);
+    font-size: 28px;
+    text-align: center;
+    margin: 5px auto;
+    padding: 5px;
+    aspect-ratio: 1/1;
+    border-radius: 25px;
+    transition-duration: 0.25s;
+    cursor: pointer;
+    font-weight: bolder;
+}
+.reaction-popup span:hover {
+    color: var(--foreground-0);
+    background-color: var(--accent);
+}

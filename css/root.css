@@ -1,0 +1,57 @@
+:root {
+    --font-family: SF Pro, serif;
+    --dark-0: hsla(0deg, 0%, 0%, 1.0);
+    --dark-1: hsla(0deg, 0%, 0%, 0.3);
+    --dark-2: hsla(0deg, 0%, 0%, 0.075);
+    --light-0: hsla(0deg, 0%, 100%, 1.0);
+    --light-1: hsla(0deg, 0%, 100%, 0.3);
+    --light-2: hsla(0deg, 0%, 100%, 0.075);
+    --accent: hsl(211, 100%, 50%);
+    --accent-2: hsl(129, 64%, 57%);
+    --accent-3: hsl(353, 64%, 57%);
+    --privacy-blur: 0px;
+}
+
+[data-theme="light"] {
+    --foreground-0: var(--dark-0);
+    --foreground-1: var(--dark-1);
+    --foreground-2: var(--dark-2);
+    --background-0: var(--light-0);
+    --background-1: var(--light-1);
+    --background-2: var(--light-2);
+    --recipient: rgb(calc(0.9 * 255), calc(0.9 * 255), calc(0.9 * 255));
+}
+
+[data-theme="dark"] {
+    --foreground-0: var(--light-0);
+    --foreground-1: var(--light-1);
+    --foreground-2: var(--light-2);
+    --background-0: var(--dark-0);
+    --background-1: var(--dark-1);
+    --background-2: var(--dark-2);
+    --recipient: rgb(calc(0.15 * 255), calc(0.15 * 255), calc(0.15 * 255))
+}
+
+p,
+span,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+a {
+    font-family: SF Pro, sans-serif;
+}
+
+body {
+    margin: 0px;
+    padding: 0px;
+    overflow: hidden;
+    background-color: var(--background-0);
+}
+
+a, a:visited {
+    color: var(--accent);
+    text-decoration: none;
+}

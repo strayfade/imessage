@@ -1,0 +1,18 @@
+{
+    "name": "imessage",
+    "version": "1.0.0",
+    "description": "iMessage for everyone.",
+    "main": "Build.js",
+    "scripts": {
+        "develop": "nodemon --exec \"node Build\" --ignore \"build/\" --ext \"\"",
+        "build": "node Build"
+    },
+    "author": "strayfade",
+    "license": "MIT",
+    "dependencies": {
+        "clean-css": "^5.3.3",
+        "fs": "^0.0.1-security",
+        "javascript-obfuscator": "^4.1.0",
+        "nodemon": "^3.1.0"
+    }
+}

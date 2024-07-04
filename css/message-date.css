@@ -1,0 +1,10 @@
+.message-timestamp-header {
+    width: max-content;
+    margin: 5px auto;
+    color: var(--foreground-1);
+    font-size: 14px;
+    margin-top: 25px;
+}
+.message-date {
+    font-weight: 600;
+}

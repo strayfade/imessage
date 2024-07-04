@@ -1,0 +1,13 @@
+.unread-message-marker {
+    width: 10vw;
+    height: 75px;
+}
+.unread-message-marker-inner {
+    width: 4vw;
+    height: 4vw;
+    border-radius: 100px;
+    background-color: var(--accent);
+    margin-left: calc(10vw / 2 - 4vw / 2);
+    margin-top: calc(75px / 2 - 4vw / 2);
+    transform: scale(90%);
+}

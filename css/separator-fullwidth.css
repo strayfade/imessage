@@ -1,0 +1,9 @@
+.separator-fullwidth {
+    width: 100vw;
+    height: 1px;
+    background-color: var(--foreground-2);
+    margin-top: 20px;
+}
+#page1 .separator-fullwidth {
+    margin-top: 0px;
+}

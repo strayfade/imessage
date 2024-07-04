@@ -1,0 +1,9 @@
+.messaging-toolbar {
+    position: absolute;
+    width: 100vw;
+    left: 0;
+    top: 0;
+    backdrop-filter: blur(100px);
+    z-index: 2;
+    background: rgba(255, 255, 255, .08);
+}

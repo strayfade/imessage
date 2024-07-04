@@ -1,0 +1,10 @@
+.settings-option-header {
+    color: var(--foreground-0);
+    opacity: 0.5;
+    text-transform: uppercase;
+    font-weight: 400;
+    font-family: 'SF Pro', sans-serif;
+    font-size: 13px;
+    margin-bottom: 6px;
+    padding: 0px 16px;
+}

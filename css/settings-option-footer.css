@@ -1,0 +1,10 @@
+.settings-option-footer {
+    margin-bottom: 20px;
+    margin-top: -10px;
+    font-size: 11px;
+    width: 100%;
+    text-align: center;
+    color: var(--foreground-1);
+    font-family: 'SF Pro', sans-serif;
+    opacity: 0.5;
+}

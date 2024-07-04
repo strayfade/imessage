@@ -1,0 +1,10 @@
+.message-receipt {
+    margin-bottom: 0px;
+    margin-right: 14px;
+    margin-left: 14px;
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--foreground-1);
+    margin-top: -2px;
+    text-align: right;
+}

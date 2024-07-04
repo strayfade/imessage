@@ -1,0 +1,17 @@
+.homepage-message-time {
+    position: absolute;
+    top: calc(10vw / 2 - 4vw / 2);
+    right: 5vw;
+}
+
+.homepage-message-time .homepage-message-time-text {
+    color: var(--foreground-1);
+    font-size: 18px;
+}
+
+.homepage-message-time .homepage-message-time-icon {
+    color: var(--foreground-1);
+    margin-left: 6px;
+    font-size: 18px;
+    opacity: 0.5;
+}

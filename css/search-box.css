@@ -1,0 +1,39 @@
+.search-box {
+    font-family: 'SF Pro', sans-serif;
+    width: 100%;
+    border: none;
+    border-radius: 6px;
+    background-color: var(--foreground-2);
+    padding: 6px 6px;
+    font-size: 18px;
+    color: var(--foreground-0);
+    margin-bottom: 20px;
+}
+
+.search-box:active,
+.search-box:focus {
+    outline: none;
+    border: none;
+}
+
+::-webkit-input-placeholder {
+    /* WebKit, Blink, Edge */
+    color: var(--foreground-1);
+}
+
+:-moz-placeholder {
+    /* Mozilla Firefox 4 to 18 */
+    color: var(--foreground-1);
+    opacity: 1;
+}
+
+::-moz-placeholder {
+    /* Mozilla Firefox 19+ */
+    color: var(--foreground-1);
+    opacity: 1;
+}
+
+::placeholder {
+    /* Most modern browsers support this now. */
+    color: var(--foreground-1);
+}

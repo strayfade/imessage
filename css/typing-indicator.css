@@ -1,0 +1,27 @@
+.typing-indicator-inner {
+    animation-name: Pulse;
+    animation-duration: 1s;
+    animation-iteration-count: infinite;
+    animation-direction: alternate-reverse;
+    animation-delay: 0s;
+    width: 10px;
+    height: 10px;
+    display: inline-block;
+    margin-top: -12px;
+    border-radius: 10px;
+    background-color: var(--foreground-1);
+}
+.anim-offset-1 {
+    animation-delay: calc(1s / 3 * 1);
+}
+.anim-offset-2 {
+    animation-delay: calc(1s / 3 * 2);
+}
+@keyframes Pulse {
+    from {
+        background-color: var(--foreground-2);
+    }
+    to {
+        background-color: var(--foreground-1);
+    }
+}

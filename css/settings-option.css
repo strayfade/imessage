@@ -1,0 +1,44 @@
+.settings-option-container {
+    background-color: var(--foreground-2);
+    border-radius: 15px;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+.settings-option {
+    display: flex;  
+    padding: 0 16px;
+}
+.settings-option-name {
+    margin: 12px 0px;
+    color: var(--foreground-0);
+}
+.settings-option-value {
+    margin: 12px 0px;
+    color: var(--foreground-0);
+    opacity: 0.5;
+    margin-left: auto;
+}
+.settings-option-chevron {
+    margin: 12px 0px;
+    color: var(--foreground-0);
+    opacity: 0.25;
+}
+.settings-option-separator {
+    background: var(--recipient);
+    min-height: 1px;
+}
+.settings-option-input {
+    font-family: 'SF Pro', sans-serif;
+    text-align: right;
+    font-size: 18px;
+    max-width: 50vw;
+    margin: 0px 10px 0px auto;
+    color: var(--foreground-0);
+    background: transparent;
+    border: none;
+    opacity: 0.5;
+}
+.settings-option-input:focus, .settings-option-input:active {
+    border: none;
+    outline: none;
+}

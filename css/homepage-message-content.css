@@ -1,0 +1,12 @@
+.homepage-message-content-container {
+    width: 100%;
+}
+.homepage-message-content {
+    font-weight: 400;
+    color: var(--foreground-0);
+    opacity: 0.7;
+    margin: 0;
+    font-size: 18px;
+    margin-top: 4px;
+    width: max-content;
+}

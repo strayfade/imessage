@@ -1,0 +1,23 @@
+.message-tail {
+    position: absolute;
+    z-index: -1;
+}
+
+.message-sender-tail {
+    bottom: -1px;
+    transform: scaleX(-100%);
+    right: -5px;
+}
+
+.message-recipient-tail {
+    bottom: -1px;
+    left: -5px;
+}
+
+.message-sender-tail svg path {
+    fill: var(--accent);
+}
+
+.message-recipient-tail svg path {
+    fill: var(--recipient);
+}

@@ -1,0 +1,37 @@
+.homepage-message-container {
+    display: flex;
+    cursor: pointer;
+}
+.homepage-message-container:hover {
+    background-color: var(--foreground-2);
+}
+
+.homepage-message {
+    border-bottom: 1px solid var(--foreground-2);
+    width: calc(100vw - 5vw);
+    display: flex;
+    padding: 10px 0px;
+    position: relative;
+}
+
+.homepage-message img,
+.homepage-message .homepage-initials {
+    margin: 5px 20px 5px 0;
+    height: 55px;
+    transform: scale(110%);
+    border-radius: 100vw;
+    background: linear-gradient(#a1a8b5, #858994);
+    aspect-ratio: 1/1;
+}
+.homepage-message .homepage-letter {
+    font-family: 'SF Pro', sans-serif;
+    font-weight: 300;
+    color: var(--foreground-0);
+    text-align: center;
+    font-size: 35px;
+    padding-top: 6px;
+    height: calc(55px - 6px);
+    width: calc(68px - 2px);
+    padding-left: 2px;
+    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}

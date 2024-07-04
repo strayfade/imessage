@@ -1,0 +1,3 @@
+.privacy-hidden {
+    filter: blur(var(--privacy-blur));
+}

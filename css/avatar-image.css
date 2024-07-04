@@ -1,0 +1,23 @@
+.avatar-image {
+    width: 50px;
+    margin: 6px auto;
+    text-align: center;
+    display: block;
+    margin-top: 20px;
+}
+
+#avatar-name {
+    font-family: "SF Pro", sans-serif;
+    color: var(--foreground-0);
+    font-size: 12px;
+    margin-top: 2px;
+    margin-bottom: 20px;
+    width: 50vw;
+    text-align: center;
+}
+
+#contact-chevron {
+    color: var(--foreground-1);
+    font-size: 10px;
+    margin-left: 2px;
+}
