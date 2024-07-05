@@ -5,6 +5,8 @@ var ChatsOffset;
 var WebsocketURL;
 var Password;
 
+const SupportJavascriptInterfaces = true
+
 const Refresh = () => {
     ConnectToServer();
 }
@@ -606,6 +608,14 @@ const ProcessResponse = (json) => {
                     Bubble.classList.add("message-visible")
                 }
             }
+            if (json.data.message[0].sender == 0 && SupportJavascriptInterfaces) {
+                try {
+                    Dialog.showMessage(json.data.message[0].author, json.data.message[0].text)
+                }
+                catch {
+                    
+                }
+            }
             break;
         case "setTypingIndicator":
             SetTypingIndicator(json.data.typing)
@@ -835,7 +845,7 @@ setInterval(() => {
             }))
         }
         catch {
-            
+
         }
     }
 }, 60000);

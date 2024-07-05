@@ -46,12 +46,7 @@
 
 #send-toolbar .message-input:active,
 #send-toolbar .message-input:focus {
-    padding: 12px 20px;
-    bottom: 50vh;
-    left: 25px;
-    right: 35px;
-    font-size: 21px;
+    
     border: 1px solid var(--foreground-1);
     outline: 0;
-    box-shadow: 0 0 100px 50px #000;
 }

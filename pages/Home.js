@@ -19,7 +19,7 @@ const Home = async (Request) => {
                         </p>
                     </div>
                     <h1 class="app-header">Messages</h1>
-                    <input class="search-box" type="text" onkeyup="SearchContacts()" value="" placeholder="􀊫 Search"/>
+                    <input tabindex="-1" class="search-box" type="text" onkeyup="SearchContacts()" value="" placeholder="􀊫 Search"/>
                 </div>
                 <div id="homepage-contacts">
                 
@@ -60,7 +60,7 @@ const Home = async (Request) => {
                     <div class="send-toolbar-tools">
                         􀁍
                     </div>
-                    <input class="message-input" type="text" placeholder="iMessage" id="message-input">
+                    <input tabindex="-1" class="message-input" type="text" placeholder="iMessage" id="message-input">
                 </div>
         </div>
         <div class="page-view page-view-popup page-view-popup-hidden" id="settings-page">
@@ -79,14 +79,14 @@ const Home = async (Request) => {
                 <div class="settings-option-container">
                     <div class="settings-option">
                         <p class="settings-option-name">IP Address</p>
-                        <input class="settings-option-input privacy-hidden" id="settings-option-host" type="text" placeholder="192.168.1.1" onkeyup="SaveSettings()" />
+                        <input tabindex="-1" class="settings-option-input privacy-hidden" id="settings-option-host" type="text" placeholder="192.168.1.1" onkeyup="SaveSettings()" />
                         <p class="settings-option-chevron">􀆊</p>
                     </div>
                     <div class="settings-option-separator">
                     </div>
                     <div class="settings-option">
                         <p class="settings-option-name">Port</p>
-                        <input class="settings-option-input privacy-hidden" id="settings-option-port" type="text" placeholder="8080" onkeyup="SaveSettings()" />
+                        <input tabindex="-1" class="settings-option-input privacy-hidden" id="settings-option-port" type="text" placeholder="8080" onkeyup="SaveSettings()" />
                         <p class="settings-option-chevron">􀆊</p>
                     </div>
                     <div class="settings-option-separator">
@@ -102,7 +102,7 @@ const Home = async (Request) => {
                     </div>
                     <div class="settings-option">
                         <p class="settings-option-name">Password</p>
-                        <input class="settings-option-input" id="settings-option-password" type="password" placeholder="Optional" onkeyup="SaveSettings()"/>
+                        <input tabindex="-1" class="settings-option-input" id="settings-option-password" type="password" placeholder="Optional" onkeyup="SaveSettings()"/>
                         <p class="settings-option-chevron">􀆊</p>
                     </div>
                 </div>
