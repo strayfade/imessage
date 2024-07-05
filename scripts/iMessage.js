@@ -11,6 +11,17 @@ const Refresh = () => {
     ConnectToServer();
 }
 
+const GetTime = (time) => {
+    return ((Ts) => {
+        const Dt = new Date(Ts)
+        return `${Dt.getHours() > 12 ? Dt.getHours() - 12 : (Dt.getHours() == 0 ? 12 : Dt.getHours())}:${((Pad) => {
+            if (Pad.toString().length == 1)
+                Pad = "0" + Pad
+            return Pad
+        })(Dt.getMinutes())} ${Dt.getHours() < 12 ? "AM" : "PM"}`
+    })(time)
+}
+
 const SearchContacts = () => {
     let AllContacts = document.getElementById("homepage-contacts").childNodes
     let Search = document.getElementsByClassName("search-box")[0].value
@@ -301,10 +312,21 @@ document.getElementById("message-input").addEventListener("keyup", () => {
 })
 
 // Send texts
+let LastMessageSent;
 const SendMessage = async () => {
     let TextMessage = document.getElementById("message-input").value
     document.getElementById("message-input").value = ""
     document.activeElement = null
+
+    // Create dummy element
+    let Bubbles = CreateMessageBubble(false, {}, TextMessage, 1, true);
+    for (const Bubble of Bubbles) {
+        LastMessageSent = Bubble
+        MessageContainer.append(Bubble)
+        MessageContainer.scrollTop = MessageContainer.scrollHeight;
+        Bubble.classList.add("message-visible")
+    }
+
     let ServerSettings = JSON.parse(localStorage.getItem("serverSettings"))
     if (ServerSettings) {
         let Host = ServerSettings.host
@@ -315,7 +337,7 @@ const SendMessage = async () => {
         // Authenticate against API
         const SendEndpoint = `${UseHTTPS ? "https" : "http"}://${Host}:${Port}/sendText`;  // Replace with your API endpoint‰
 
-        fetch(SendEndpoint, {
+        const A1 = await fetch(SendEndpoint, {
             method: 'OPTIONS',
             headers: {
                 'Accept': '*/*',
@@ -328,37 +350,24 @@ const SendMessage = async () => {
             },
             body: JSON.stringify()
         })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Network response was not ok');
-                }
 
-                fetch(SendEndpoint, {
-                    method: 'POST',
-                    headers: {
-                        'Accept': 'application/json, text/plain, */*',
-                        'Accept-Encoding': 'gzip, deflate',
-                        'Accept-Language': 'en-US',
-                        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) webmessage/0.7.0 Chrome/87.0.4280.141 Electron/11.4.2 Safari/537.36',
-                        'Content-Type': 'application/json;charset=UTF-8',
-                        'Origin': 'app://.'
-                    },
-                    body: JSON.stringify({
-                        text: TextMessage,
-                        attachments: [],
-                        address: CurrentChatNumber,
-                        subject: null,
-                    })
-                })
-                    .catch(error => {
-                        console.error(error);
-                        // Handle errors here
-                    });
+        const A2 = await fetch(SendEndpoint, {
+            method: 'POST',
+            headers: {
+                'Accept': 'application/json, text/plain, */*',
+                'Accept-Encoding': 'gzip, deflate',
+                'Accept-Language': 'en-US',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) webmessage/0.7.0 Chrome/87.0.4280.141 Electron/11.4.2 Safari/537.36',
+                'Content-Type': 'application/json;charset=UTF-8',
+                'Origin': 'app://.'
+            },
+            body: JSON.stringify({
+                text: TextMessage,
+                attachments: [],
+                address: CurrentChatNumber,
+                subject: null,
             })
-            .catch(error => {
-                console.error(error);
-                // Handle errors here
-            });
+        })
     }
 }
 document.getElementById("message-input").addEventListener("keydown", (ev) => {
@@ -529,11 +538,7 @@ const ProcessResponse = (json) => {
                     else if (Math.abs(Ts - Date.now()) > 1000 * 60 * 60 * 24) {
                         return `Yesterday`
                     }
-                    return `${Dt.getHours() > 12 ? Dt.getHours() - 12 : (Dt.getHours() == 0 ? 12 : Dt.getHours())}:${((Pad) => {
-                        if (Pad.toString().length == 1)
-                            Pad = "0" + Pad
-                        return Pad
-                    })(Dt.getMinutes())} ${Dt.getHours() < 12 ? "AM" : "PM"}`
+                    return GetTime(Ts)
                 })(Message.date)
                 const TimestampChevron = document.createElement("span")
                 TimestampChevron.className = "homepage-message-time-icon"
@@ -601,11 +606,24 @@ const ProcessResponse = (json) => {
             break;
         case "newMessage":
             for (const Message of json.data.message) {
-                let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, true);
-                for (const Bubble of Bubbles) {
-                    MessageContainer.append(Bubble)
+                if (Message.sender == 0) {
+                    let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, true);
+                    for (const Bubble of Bubbles) {
+                        MessageContainer.append(Bubble)
+                        MessageContainer.scrollTop = MessageContainer.scrollHeight;
+                        Bubble.classList.add("message-visible")
+                    }
+                }
+                else {
+                    let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, true);
+                    for (const Bubble of Bubbles) {
+                        Bubble.classList.add("message-visible")
+                        MessageContainer.append(Bubble)
+                    }
+                    if (LastMessageSent) {
+                        LastMessageSent.remove()
+                    }
                     MessageContainer.scrollTop = MessageContainer.scrollHeight;
-                    Bubble.classList.add("message-visible")
                 }
             }
             if (json.data.message[0].sender == 0 && SupportJavascriptInterfaces) {
@@ -613,21 +631,26 @@ const ProcessResponse = (json) => {
                     Dialog.showMessage(json.data.message[0].author, json.data.message[0].text)
                 }
                 catch {
-                    
+
                 }
             }
+            RefreshMessageStatus(json);
             break;
         case "setTypingIndicator":
             SetTypingIndicator(json.data.typing)
             break;
         case "newReaction":
             break;
+        case "setAsRead":
+            if (json.data.guid) {
+                RefreshMessageStatus(json);
+            }
+            break;
         default:
             console.error(`Unhandled JSON: `, json)
             break;
     }
 
-    RefreshMessageStatus(json);
     ApplyTimestamps(json)
     ApplyReactions(json)
 
@@ -665,7 +688,98 @@ const SwapTab = (TabNum, Intent = "") => {
     }
 }
 
-const RefreshMessageStatus = (json, ForceMarkAsRead = false) => {
+const RefreshMessageStatus = async (json) => {
+
+    if (json.action == "setAsRead" && json.data.read != 0)
+        return;
+    console.log(json.action, json.data)
+
+    const GetMostRecentMessage = (guid) => {
+        const Messages = document.getElementsByClassName("message")
+        let LastMessage;
+        for (let x = 0; x < Messages.length; x++) {
+            const RawData = JSON.parse(Messages[x].getAttribute("rawjson"))
+            if (RawData && RawData.sender == 1) {
+                LastMessage = Messages[x]
+            }
+        }
+        return LastMessage
+    }
+
+    const GetMessageByGuid = (guid) => {
+        const Messages = document.getElementsByClassName("message")
+        for (let x = 0; x < Messages.length; x++) {
+            const RawData = JSON.parse(Messages[x].getAttribute("rawjson"))
+            if (RawData.guid == guid)
+                return Messages[x]
+        }
+    }
+
+    if (json.action == "setAsRead" && json.data.read != 0) {
+        if (json.data.guid) {
+            while (document.getElementsByClassName("message-receipt-read")[0])
+                document.getElementsByClassName("message-receipt-read")[0].remove()
+            const TargetMessage = GetMessageByGuid(json.data.guid)
+            let NewReadIndicator;
+            if (!TargetMessage.nextSibling || (TargetMessage.nextSibling && !TargetMessage.nextSibling.classList.contains("message-receipt"))) {
+                NewReadIndicator = document.createElement("div")
+                NewReadIndicator.className = "message-receipt message-receipt-read"
+                NewReadIndicatorInner1 = document.createElement("span")
+                NewReadIndicatorInner2 = document.createElement("span")
+                NewReadIndicatorInner2.className = "message-receipt-time"
+                NewReadIndicator.appendChild(NewReadIndicatorInner1)
+                NewReadIndicator.appendChild(NewReadIndicatorInner2)
+                if (TargetMessage.nextSibling)
+                    MessageContainer.insertBefore(NewReadIndicator, TargetMessage.nextSibling)
+                else
+                    MessageContainer.appendChild(NewReadIndicator)
+
+            }
+            else {
+                NewReadIndicator = TargetMessage.nextSibling
+            }
+            console.log(NewReadIndicator)
+            NewReadIndicator.childNodes[0].textContent = `Read`
+            NewReadIndicator.childNodes[1].textContent = `${GetTime(json.data.read)}`
+        }
+        return;
+    }
+
+    return;
+
+    if (json.action == "newMessage") {
+        const Message = json.data.message[0]
+        if (Message) {
+            while (document.getElementsByClassName("message-receipt-delivered")[0])
+                document.getElementsByClassName("message-receipt-delivered")[0].remove()
+            if (Message.sender == 1) {
+                const TargetMessage = GetMostRecentMessage();
+                let NewDeliveredIndicator;
+                if (!TargetMessage.nextSibling || (TargetMessage.nextSibling && !TargetMessage.nextSibling.classList.contains("message-receipt"))) {
+                    NewDeliveredIndicator = document.createElement("div")
+                    NewDeliveredIndicator.className = "message-receipt message-receipt-delivered"
+                    NewDeliveredIndicatorInner = document.createElement("span")
+                    NewDeliveredIndicator.appendChild(NewDeliveredIndicatorInner)
+                    if (TargetMessage.nextSibling)
+                        MessageContainer.insertBefore(NewDeliveredIndicator, TargetMessage.nextSibling)
+                    else
+                        MessageContainer.appendChild(NewDeliveredIndicator)
+                }
+                else {
+                    NewDeliveredIndicator = TargetMessage.nextSibling
+                }
+                NewDeliveredIndicator.childNodes[0].textContent = `Delivered`
+            }
+        }
+        return;
+    }
+
+    /*
+    if (json.action == "setAsRead")
+        ForceMarkAsRead = true
+
+    console.log(json)
+    console.log(ForceMarkAsRead)
     while (document.getElementsByClassName("message-receipt")[0])
         document.getElementsByClassName("message-receipt")[0].remove();
     let Messages = document.getElementsByClassName("message")
@@ -680,9 +794,7 @@ const RefreshMessageStatus = (json, ForceMarkAsRead = false) => {
         let NewReceipt = document.createElement("p");
         NewReceipt.className = "message-receipt"
         let DateRead = JSON.parse(LastMessageSent.getAttribute("rawjson")).dateRead;
-        if (json.action == "setAsRead")
-            DateRead = Date.now()
-        NewReceipt.textContent = (json.action == "setAsRead" || (JSON.parse(LastMessageSent.getAttribute("rawjson")).dateRead != 0)) ? `Read ${((Ts) => {
+        NewReceipt.textContent = ((json.action == "setAsRead" || (JSON.parse(LastMessageSent.getAttribute("rawjson")).dateRead != 0)) || ForceMarkAsRead) ? `Read ${((Ts) => {
             const Dt = new Date(Ts)
             return `${Dt.getHours() > 12 ? Dt.getHours() - 12 : (Dt.getHours() == 0 ? 12 : Dt.getHours())}:${((Pad) => {
                 if (Pad.toString().length == 1)
@@ -691,20 +803,7 @@ const RefreshMessageStatus = (json, ForceMarkAsRead = false) => {
             })(Dt.getMinutes())} ${Dt.getHours() < 12 ? "AM" : "PM"}`
         })(DateRead)}` : "Delivered"
         MessageContainer.insertBefore(NewReceipt, LastMessageSent.nextSibling);
-    }
-
-    if ((json.action == "markAsRead") || ForceMarkAsRead) {
-        if (document.getElementsByClassName("message-receipt")[0]) {
-            document.getElementsByClassName("message-receipt")[0].textContent = `Read ${((Ts) => {
-                const Dt = new Date(Ts)
-                return `${Dt.getHours() > 12 ? Dt.getHours() - 12 : (Dt.getHours() == 0 ? 12 : Dt.getHours())}:${((Pad) => {
-                    if (Pad.toString().length == 1)
-                        Pad = "0" + Pad
-                    return Pad
-                })(Dt.getMinutes())} ${Dt.getHours() < 12 ? "AM" : "PM"}`
-            })(Date.now())}`
-        }
-    }
+    }*/
 }
 
 const ApplyReactions = (json) => {
@@ -807,14 +906,7 @@ const ApplyTimestamps = (json) => {
                 }
             })(json.dateDelivered)
             let MessageTimestampTime = document.createElement("span")
-            MessageTimestampTime.textContent = ((Ts) => {
-                const Dt = new Date(Ts)
-                return `, ${Dt.getHours() > 12 ? Dt.getHours() - 12 : (Dt.getHours() == 0 ? 12 : Dt.getHours())}:${((Pad) => {
-                    if (Pad.toString().length == 1)
-                        Pad = "0" + Pad
-                    return Pad
-                })(Dt.getMinutes())} ${Dt.getHours() < 12 ? "AM" : "PM"}`
-            })(json.dateDelivered)
+            MessageTimestampTime.textContent = GetTime(json.dateDelivered)
 
             MessageTimestampContainer.appendChild(MessageTimestampDate)
             MessageTimestampContainer.appendChild(MessageTimestampTime)
