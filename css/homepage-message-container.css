@@ -24,14 +24,13 @@
     aspect-ratio: 1/1;
 }
 .homepage-message .homepage-letter {
-    font-family: 'SF Pro', sans-serif;
+    font-family: 'SF Pro Rounded', sans-serif;
     font-weight: 300;
-    color: white;
+    color: #fff;
     text-align: center;
-    font-size: 35px;
-    padding-top: 6px;
-    height: calc(55px - 6px);
-    width: calc(68px - 2px);
-    padding-left: 2px;
-    text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+    font-size: 30px;
+    padding-top: 7px;
+    height: calc(50px - 6px);
+    width: calc(63px - 2px);
+    padding-bottom: 0px;
 }
