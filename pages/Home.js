@@ -169,7 +169,7 @@ const Home = async (Request) => {
                         </p>
                     </div>
                 </div>
-                <div class="settings-option-footer">
+                <div class="settings-option-footer" style="display: none;">
                     Made with <3 by strayfade
                 </div>
             </div>

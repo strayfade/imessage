@@ -511,7 +511,7 @@ const ProcessResponse = (json) => {
                 MessageContent.className = "homepage-message-content";
                 if (JSON.parse(localStorage.getItem("clientSettings")).uiPrivate)
                     MessageContent.classList.add("privacy-hidden")
-                MessageContent.innerHTML = (Message.text == "\ufffc") ? "<em>Media</em>" : Message.text;
+                MessageContent.innerHTML = (Message.text == "\ufffc") ? "<em>Media</em>" : ((Message.text.length > 30) ? (Message.text.substring(0, 30).trim() + "...") : Message.text);
                 MessageContentContainer.appendChild(MessageContent)
 
                 const Timestamp = document.createElement("div")
@@ -596,7 +596,6 @@ const ProcessResponse = (json) => {
                 }
                 return NamesOut
             })();
-            ApplyReactions(json)
             break;
         case "newMessage":
             for (const Message of json.data.message) {
@@ -607,13 +606,11 @@ const ProcessResponse = (json) => {
                     Bubble.classList.add("message-visible")
                 }
             }
-            ApplyReactions(json)
             break;
         case "setTypingIndicator":
             SetTypingIndicator(json.data.typing)
             break;
         case "newReaction":
-            ApplyReactions(json)
             break;
         default:
             console.error(`Unhandled JSON: `, json)
@@ -622,6 +619,7 @@ const ProcessResponse = (json) => {
 
     RefreshMessageStatus(json);
     ApplyTimestamps(json)
+    ApplyReactions(json)
 
     // Scroll to bottom
     MessageContainer.scrollTop = MessageContainer.scrollHeight;
@@ -824,8 +822,24 @@ const ApplyTimestamps = (json) => {
 
 SwapTab(0)
 
+setInterval(() => {
+    if (GlobalSocket.OPEN) {
+        try {
+            GlobalSocket.send(JSON.stringify({
+                action: "fetchChats",
+                data: {
+                    offset: "0",
+                    limit: "50"
+                },
+                password: Password
+            }))
+        }
+        catch {
+            
+        }
+    }
+}, 60000);
+
 document.documentElement.setAttribute('data-theme', 'light');
 if (window.navigator.userAgent.includes("DarkMode"))
     document.documentElement.setAttribute('data-theme', 'dark');
-
-document.documentElement.setAttribute('data-theme', 'dark');

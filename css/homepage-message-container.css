@@ -26,7 +26,7 @@
 .homepage-message .homepage-letter {
     font-family: 'SF Pro', sans-serif;
     font-weight: 300;
-    color: var(--foreground-0);
+    color: white;
     text-align: center;
     font-size: 35px;
     padding-top: 6px;

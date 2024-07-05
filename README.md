@@ -95,7 +95,7 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 ### Message attachments
 - Images
   - [x] Receive/display
-    - May be broken on browsers that upgrade insecure (http) requests.
+    - May be broken on browsers that upgrade insecure (http) requests. Should work fine in http-only contexts.
   - [ ] Send
 - Video
   - [ ] Receive/display

@@ -1,9 +1,9 @@
 :root {
     --font-family: SF Pro, serif;
-    --dark-0: hsla(0deg, 0%, 0%, 1.0);
+    --dark-0: hsla(0deg, 0%, 0%, 1);
     --dark-1: hsla(0deg, 0%, 0%, 0.3);
     --dark-2: hsla(0deg, 0%, 0%, 0.075);
-    --light-0: hsla(0deg, 0%, 100%, 1.0);
+    --light-0: hsla(0deg, 0%, 100%, 1);
     --light-1: hsla(0deg, 0%, 100%, 0.3);
     --light-2: hsla(0deg, 0%, 100%, 0.075);
     --accent: hsl(211, 100%, 50%);
@@ -12,7 +12,7 @@
     --privacy-blur: 0px;
 }
 
-[data-theme="light"] {
+[data-theme='light'] {
     --foreground-0: var(--dark-0);
     --foreground-1: var(--dark-1);
     --foreground-2: var(--dark-2);
@@ -22,14 +22,14 @@
     --recipient: rgb(calc(0.9 * 255), calc(0.9 * 255), calc(0.9 * 255));
 }
 
-[data-theme="dark"] {
+[data-theme='dark'] {
     --foreground-0: var(--light-0);
     --foreground-1: var(--light-1);
     --foreground-2: var(--light-2);
     --background-0: var(--dark-0);
     --background-1: var(--dark-1);
     --background-2: var(--dark-2);
-    --recipient: rgb(calc(0.15 * 255), calc(0.15 * 255), calc(0.15 * 255))
+    --recipient: rgb(calc(0.15 * 255), calc(0.15 * 255), calc(0.15 * 255));
 }
 
 p,
@@ -51,7 +51,18 @@ body {
     background-color: var(--background-0);
 }
 
-a, a:visited {
+a,
+a:visited {
     color: var(--accent);
     text-decoration: none;
+}
+
+* {
+    -webkit-touch-callout: none; /* iOS Safari */
+    -webkit-user-select: none; /* Safari */
+    -khtml-user-select: none; /* Konqueror HTML */
+    -moz-user-select: none; /* Old versions of Firefox */
+    -ms-user-select: none; /* Internet Explorer/Edge */
+    user-select: none; /* Non-prefixed version, currently
+                                    supported by Chrome, Edge, Opera and Firefox */
 }

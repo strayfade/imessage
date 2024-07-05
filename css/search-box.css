@@ -1,6 +1,6 @@
 .search-box {
     font-family: 'SF Pro', sans-serif;
-    width: 100%;
+    width: calc(100% - 12px);
     border: none;
     border-radius: 6px;
     background-color: var(--foreground-2);
