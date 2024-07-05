@@ -1,5 +1,6 @@
 .homepage-message-content-container {
     width: 100%;
+    margin-left: 10px;
 }
 .homepage-message-content {
     font-weight: 400;

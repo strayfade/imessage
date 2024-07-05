@@ -501,6 +501,7 @@ const ProcessResponse = (json) => {
 
                 const UserAvatar = document.createElement("img")
                 UserAvatar.src = "./assets/default-user.png"
+                UserAvatar.className = "user-avatar"
                 const MessageContentContainer = document.createElement("div")
                 MessageContentContainer.className = "homepage-message-content-container"
                 const MessageAuthor = document.createElement("p");
@@ -544,8 +545,7 @@ const ProcessResponse = (json) => {
                     return /^[a-zA-Z\s]*$/.test(input);
                 })(Message.author)) {
                     const UserAvatarLetters = document.createElement("div")
-                    UserAvatarLetters.className = "homepage-initials"
-                    UserAvatarLetters.classList.add("homepage-letter")
+                    UserAvatarLetters.className = "user-avatar"
                     UserAvatarLetters.textContent = (() => {
                         const words = Message.author.toString().split(' ');
                         let initials = '';
