@@ -13,9 +13,11 @@
 
 .message-reaction-sender-color {
     background: var(--recipient);
+    color: var(--foreground-0);
 }
 .message-reaction-recipient-color {
-    background: var(--accent);
+    background: var(--accent);  
+    color: white;
 }
 .message-reaction-sender {
     left: -21px;
