@@ -731,12 +731,13 @@ const RefreshMessageStatus = async (json) => {
                         MessageContainer.insertBefore(NewDeliveredIndicator, TargetMessage.nextSibling)
                     else
                         MessageContainer.appendChild(NewDeliveredIndicator)
-                    NewDeliveredIndicator.childNodes[0].textContent = `Delivered`
                 }
                 else {
                     NewDeliveredIndicator = TargetMessage.nextSibling
-                    NewDeliveredIndicator.childNodes[0].textContent = `Delivered`
                 }
+                NewDeliveredIndicator.childNodes[0].textContent = `Delivered`
+                await new Promise(r => setTimeout(r, 100));
+                NewDeliveredIndicator.classList.add("message-receipt-visible")
             }
         }
         return;
@@ -762,15 +763,15 @@ const RefreshMessageStatus = async (json) => {
                     MessageContainer.insertBefore(NewReadIndicator, TargetMessage.nextSibling)
                 else
                     MessageContainer.appendChild(NewReadIndicator)
-                NewReadIndicator.childNodes[0].textContent = `Read`
-                NewReadIndicator.childNodes[1].textContent = `${GetTime(json.data.read)}`
 
             }
             else {
                 NewReadIndicator = TargetMessage.nextSibling
-                NewReadIndicator.childNodes[0].textContent = `Read`
-                NewReadIndicator.childNodes[1].textContent = `${GetTime(json.data.read)}`
             }
+            NewReadIndicator.childNodes[0].textContent = `Read`
+            NewReadIndicator.childNodes[1].textContent = `${GetTime(json.data.read)}`
+            await new Promise(r => setTimeout(r, 100));
+            NewReadIndicator.classList.add("message-receipt-visible")
         }
         return;
     }
