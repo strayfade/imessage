@@ -35,7 +35,8 @@ const Home = async (Request) => {
                             􀆉
                         </p>
                         <div>
-                            <img class="avatar-image" src="./assets/default-user.png">
+                            <div id="user-avatar-container">
+                            </div>
                             <p id="avatar-name">
                                 <span id="contact-name" class="privacy-hidden">
                                     Unknown

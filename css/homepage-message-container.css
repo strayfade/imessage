@@ -31,3 +31,13 @@ img.user-avatar {
     padding: 0px;
     max-height: 50px;
 }
+
+.message-user-avatar {
+    height: 50px;
+    width: 50px;
+    margin: 0px auto;
+    text-align: center;
+    display: block;
+    margin-top: 20px;
+    margin-bottom: 5px;
+}

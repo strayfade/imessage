@@ -11,6 +11,18 @@ const Refresh = () => {
     ConnectToServer();
 }
 
+const FormatPhoneNumber = (Number = "+18005551234") => {
+    return `${
+        Number.substring(0, Number.length - 4 - 3 - 3)
+    } (${
+        Number.substring(Number.length - 4 - 3 - 3, Number.length - 4 - 3)
+    }) ${
+        Number.substring(Number.length - 4 - 3, Number.length - 4)
+    }-${
+        Number.substring(Number.length - 4, Number.length)
+    }`
+}
+
 const GetTime = (time) => {
     return ((Ts) => {
         const Dt = new Date(Ts)
@@ -514,13 +526,13 @@ const SetTypingIndicator = (On = true) => {
 }
 
 const ProcessResponse = async (json) => {
+    let Settings = JSON.parse(localStorage.getItem("serverSettings"))
     switch (json.action) {
         case "fetchChats":
             const MessagesContainer = document.getElementById("homepage-contacts")
             while (MessagesContainer.firstChild)
                 MessagesContainer.firstChild.remove();
             const Messages = json.data
-            const Settings = JSON.parse(localStorage.getItem("serverSettings"))
             for (const Message of Messages) {
                 const HomepageMessageContainer = document.createElement("div")
                 HomepageMessageContainer.className = "homepage-message-container"
@@ -541,7 +553,6 @@ const ProcessResponse = async (json) => {
                 MessageContainer.className = "homepage-message"
 
                 const UserAvatar = document.createElement("img")
-
                 const ContactImageEndpoint = `${Settings.useHttps ? "https" : "http"}://${Settings.host}:${Settings.port}/contactimg?docid=${Message.docid}`;
                 const ContactImageResponse = await fetch(ContactImageEndpoint)
                 const OutputImage = await ContactImageResponse.text()
@@ -549,15 +560,36 @@ const ProcessResponse = async (json) => {
                 if (OutputImage.length != 0) {
                     UserAvatar.src = ContactImageEndpoint
                 }
-
                 UserAvatar.className = "user-avatar"
+                if (((input) => {
+                    return /^[a-zA-Z\s]*$/.test(input) && OutputImage.length == 0;
+                })(Message.author)) {
+                    const UserAvatarLetters = document.createElement("div")
+                    UserAvatarLetters.className = "user-avatar"
+                    UserAvatarLetters.textContent = (() => {
+                        const words = Message.author.toString().split(' ');
+                        let initials = '';
+                        words.forEach(word => {
+                            initials += word.charAt(0).toUpperCase();
+                        });
+                        if (initials.length > 2)
+                            initials = initials.substring(0, 1);
+                        return initials;
+                    })()
+                    MessageContainer.appendChild(UserAvatarLetters)
+                }
+                else {
+                    MessageContainer.appendChild(UserAvatar)
+                }
+
+
                 const MessageContentContainer = document.createElement("div")
                 MessageContentContainer.className = "homepage-message-content-container"
                 const MessageAuthor = document.createElement("p");
                 MessageAuthor.className = "homepage-message-author";
                 if (JSON.parse(localStorage.getItem("clientSettings")).uiPrivate)
                     MessageAuthor.classList.add("privacy-hidden")
-                MessageAuthor.textContent = Message.author;
+                MessageAuthor.textContent = /^[\d+]+$/.test(Message.author) ? FormatPhoneNumber(Message.author) : Message.author;
                 MessageContentContainer.appendChild(MessageAuthor)
                 const MessageContent = document.createElement("p");
                 MessageContent.className = "homepage-message-content";
@@ -586,26 +618,6 @@ const ProcessResponse = async (json) => {
                 Timestamp.appendChild(TimestampText)
                 Timestamp.appendChild(TimestampChevron)
 
-                if (((input) => {
-                    return /^[a-zA-Z\s]*$/.test(input) && OutputImage.length == 0;
-                })(Message.author)) {
-                    const UserAvatarLetters = document.createElement("div")
-                    UserAvatarLetters.className = "user-avatar"
-                    UserAvatarLetters.textContent = (() => {
-                        const words = Message.author.toString().split(' ');
-                        let initials = '';
-                        words.forEach(word => {
-                            initials += word.charAt(0).toUpperCase();
-                        });
-                        if (initials.length > 2)
-                            initials = initials.substring(0, 1);
-                        return initials;
-                    })()
-                    MessageContainer.appendChild(UserAvatarLetters)
-                }
-                else {
-                    MessageContainer.appendChild(UserAvatar)
-                }
                 MessageContainer.appendChild(MessageContentContainer)
                 MessageContainer.appendChild(Timestamp)
 
@@ -617,11 +629,14 @@ const ProcessResponse = async (json) => {
             break;
         case "fetchMessages":
             json.data = json.data.reverse();
+
             const NamesFound = []
             let Iter = 0;
+            let docid = -1
             for (const Message of json.data) {
                 if (!(NamesFound.includes(Message.name)))
                     NamesFound.push(Message.name)
+                docid = Message.docid
                 let AddTail = true;
                 if (json.data[Iter + 1]) {
                     if (json.data[Iter + 1].sender == Message.sender)
@@ -634,10 +649,45 @@ const ProcessResponse = async (json) => {
                 }
                 Iter++
             }
+            console.log(docid)
+
+            const UserImageContainer = document.getElementById("user-avatar-container")
+            while (UserImageContainer.firstChild)
+                UserImageContainer.firstChild.remove()
+            const UserAvatar = document.createElement("img")
+            const ContactImageEndpoint = `${Settings.useHttps ? "https" : "http"}://${Settings.host}:${Settings.port}/contactimg?docid=${docid}`;
+            const ContactImageResponse = await fetch(ContactImageEndpoint)
+            const OutputImage = await ContactImageResponse.text()
+            UserAvatar.src = "./assets/default-user.png"
+            if (OutputImage.length != 0) {
+                UserAvatar.src = ContactImageEndpoint
+            }
+            UserAvatar.className = "user-avatar message-user-avatar"
+            if (((input) => {
+                return /^[a-zA-Z\s]*$/.test(input) && OutputImage.length == 0;
+            })(NamesFound[0])) {
+                const UserAvatarLetters = document.createElement("div")
+                UserAvatarLetters.className = "user-avatar message-user-avatar"
+                UserAvatarLetters.textContent = (() => {
+                    const words = NamesFound[0].toString().split(' ');
+                    let initials = '';
+                    words.forEach(word => {
+                        initials += word.charAt(0).toUpperCase();
+                    });
+                    if (initials.length > 2)
+                        initials = initials.substring(0, 1);
+                    return initials;
+                })()
+                UserImageContainer.appendChild(UserAvatarLetters)
+            }
+            else {
+                UserImageContainer.appendChild(UserAvatar)
+            }
+
             document.getElementById("contact-name").textContent = (() => {
                 let NamesOut = ""
                 for (let i = 0; i < NamesFound.length; i++) {
-                    NamesOut += NamesFound[i]
+                    NamesOut += /^[\d+]+$/.test(NamesFound[i]) ? FormatPhoneNumber(NamesFound[i]) : NamesFound[i]
                     if (i < NamesFound.length - 1)
                         NamesOut += ", "
                 }

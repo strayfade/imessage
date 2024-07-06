@@ -59,18 +59,19 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 - [x] Contact list
   - [x] Shows last message timestamp
   - [x] Shows custom contact images
+    - See *Note 1*.
   - [x] Updates when receiving new messages
   - [ ] Shows typing indicators
-- [ ] Create new message to phone number
-- [ ] "Edit" contacts button
+- [ ] Create new message to new phone number
 - [x] Show "unread" indicator
   - [x] Updates automatically
 
 ### Message page
-- [ ] Shows custom contact images
+- [x] Shows custom contact images
+  - See *Note 1*.
 - [x] Shows contact name
 - [x] Back button (header)
-- [ ] FaceTime button
+- [ ] FaceTime
      
 ### Typing indicators
 - [x] Sends typing indicators to recipient
@@ -95,7 +96,7 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 ### Message attachments
 - Images
   - [x] Receive/display
-    - May be broken on browsers that upgrade insecure (http) requests. Should work fine in http-only contexts.
+    - See *Note 1*.
   - [ ] Send
 - Video
   - [ ] Receive/display
@@ -124,3 +125,6 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 - [ ] New reaction
 - [x] New message
 - [x] New message receipts
+
+### Notes
+1. Images and other media content will refuse to load on browsers that force upgrading insecure (http) requests. Should work fine in http-only contexts, or when using a custom certificate.
