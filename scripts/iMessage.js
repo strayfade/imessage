@@ -201,10 +201,11 @@ const TestServerConnection = () => {
     }
 }
 
-const HideReactionPopups = () => {
+const HideReactionPopups = async () => {
     if (document.getElementsByClassName("reaction-popup")[0])
         document.getElementsByClassName("reaction-popup")[0].classList.remove("reaction-popup-visible")
     document.getElementsByClassName("backdrop-blur")[0].classList.add('backdrop-blur-hidden')
+    await new Promise(r => setTimeout(r, 500));
     while (document.getElementsByClassName("message-clone")[0])
         document.getElementsByClassName("message-clone")[0].remove()
 }
