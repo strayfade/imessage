@@ -4,16 +4,16 @@
     height: 56px;
     background-color: var(--recipient);
     border-radius: 100px;
-    top: calc(-5px - 56px);
     display: flex;
     z-index: 10;
-    box-shadow: 0px 0px 0px 2000px rgba(0, 0, 0, 0.8);
+    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
+    opacity: 0;
+    transition-duration: 0.5s;
+    pointer-events: none;
 }
-.reaction-popup-sender {
-    right: 0;
-}
-.reaction-popup-recipient {
-    left: 0;
+.reaction-popup-visible {
+    opacity: 1;
+    pointer-events: all;
 }
 .reaction-popup span {
     color: var(--foreground-1);

@@ -99,8 +99,10 @@ const SaveSettings = () => {
     }
     Password = SettingsObj.password
     let UIPrivate = document.getElementById("settings-option-useprivacymode").getAttribute("checked") == "true"
+    let UIDark = document.getElementById("settings-option-usedarkmode").getAttribute("checked") == "true"
     let SettingsObj2 = {
-        uiPrivate: UIPrivate
+        uiPrivate: UIPrivate,
+        uiDark: UIDark
     }
     document.documentElement.style.setProperty("--privacy-blur", UIPrivate ? "5px" : "0px")
     let TempWebsocketURL = `${UseHTTPS ? "wss" : "ws"}://${Host}:${Port}/auth=${((len) => {
@@ -112,6 +114,7 @@ const SaveSettings = () => {
     document.getElementById("settings-option-showurl").innerHTML = `Socket address: ${TempWebsocketURL}`
     localStorage.setItem("serverSettings", JSON.stringify(SettingsObj))
     localStorage.setItem("clientSettings", JSON.stringify(SettingsObj2))
+    LoadSettings();
 }
 
 
@@ -166,15 +169,17 @@ const LoadSettings = async () => {
         document.getElementById("settings-option-password").value = ServerSettings.password
         WebsocketURL = `${ServerSettings.useHttps ? "wss" : "ws"}://${ServerSettings.host}:${ServerSettings.port}/auth=${ServerSettings.password}`
         Password = ServerSettings.password
-        ConnectToServer()
     }
     let ClientSettings = JSON.parse(localStorage.getItem("clientSettings"))
     if (ClientSettings) {
         document.getElementById("settings-option-useprivacymode").setAttribute("checked", ClientSettings.uiPrivate ? "true" : "false")
         document.documentElement.style.setProperty("--privacy-blur", ClientSettings.uiPrivate ? "5px" : "0px")
+        document.getElementById("settings-option-usedarkmode").setAttribute("checked", ClientSettings.uiDark ? "true" : "false")
+        document.documentElement.setAttribute('data-theme', ClientSettings.uiDark ? 'dark' : 'light');
     }
 }
 LoadSettings();
+ConnectToServer()
 
 const TestServerConnection = () => {
     let Settings = JSON.parse(localStorage.getItem("serverSettings"))
@@ -197,9 +202,11 @@ const TestServerConnection = () => {
 }
 
 const HideReactionPopups = () => {
-    while (document.getElementsByClassName("reaction-popup")[0])
-        document.getElementsByClassName("reaction-popup")[0].remove();
+    if (document.getElementsByClassName("reaction-popup")[0])
+        document.getElementsByClassName("reaction-popup")[0].classList.remove("reaction-popup-visible")
     document.getElementsByClassName("backdrop-blur")[0].classList.add('backdrop-blur-hidden')
+    while (document.getElementsByClassName("message-clone")[0])
+        document.getElementsByClassName("message-clone")[0].remove()
 }
 
 const ShowSettings = () => {
@@ -375,8 +382,7 @@ document.getElementById("message-input").addEventListener("keydown", (ev) => {
         SendMessage()
 })
 
-let PopupOpen = false;
-const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message = "", Sender = 0, AddTail = true) => {
+const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message = "", Sender = 0, AddTail = true, AllowReactions = true) => {
     let OutMessages = []
 
     if (!TypingIndicator) {
@@ -426,30 +432,46 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
         TailObject.innerHTML = `<svg width="20" height="19" viewBox="0 0 20 19" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M0.798279 19H0.999991C11.4934 19 20 10.4934 20 0H5.00032V3C5.00032 8.5858 5.00032 11.3787 4.21469 13.6239C3.49497 15.6807 2.31625 17.5127 0.798279 19Z" fill="#262629"/></svg>`
         MessageContentItem.append(TailObject)
     }
-    if (!TypingIndicator) {
+    if (!TypingIndicator && AllowReactions) {
         MessageContentItem.addEventListener("click", async () => {
-            if (PopupOpen) return;
-            PopupOpen = true;
             // Remove previous tapback popups
             while (document.getElementsByClassName("reaction-popup")[0])
                 document.getElementsByClassName("reaction-popup")[0].remove();
 
+            const MessageArea = MessageContentItem.getBoundingClientRect()
+
+            // Clone current message to display on top-level
+            const CloneMessage = CreateMessageBubble(TypingIndicator, MessageJSON, Message, Sender, AddTail, false)[0]
+            CloneMessage.classList.add("message-clone")
+            document.getElementById("page1").appendChild(CloneMessage)
+            CloneMessage.style.top = `-${window.visualViewport.height - MessageArea.top - 46}px`
+            if (Sender)
+                CloneMessage.style.right = `${window.visualViewport.width - MessageArea.right - 12}px`
+            else
+                CloneMessage.style.left = `${MessageArea.left - 12}px`
+
             // Create new tapback popup
             let ReactionPopup = document.createElement("div")
             ReactionPopup.classList.add("reaction-popup")
-            ReactionPopup.classList.add(Sender ? "reaction-popup-sender" : "reaction-popup-recipient")
+
+            if (Sender)
+                ReactionPopup.style.right = "10px"
+            else
+                ReactionPopup.style.left = "10px"
+            ReactionPopup.style.top = `${MessageArea.top - 65}px`
+
             ReactionPopup.innerHTML = `
                 <span>􀊵</span>
                 <span>􀊀</span>
                 <span>􀊂</span>
-                <span>😂</span>
+                <span style="opacity: 1; color: white;">😂</span>
                 <span>􀅎</span>
                 <span>􀅍</span>
             `
 
             // Attach tapback popup to message
-            //document.getElementsByClassName("backdrop-blur")[0].classList.remove('backdrop-blur-hidden')
-            MessageContentItem.append(ReactionPopup)
+            document.getElementsByClassName("backdrop-blur")[0].classList.remove('backdrop-blur-hidden')
+            document.body.appendChild(ReactionPopup)
 
             let CurrentReactions = JSON.parse(MessageContentItem.getAttribute("rawjson")).reactions
             for (let x = 0; x < CurrentReactions.length; x++) {
@@ -462,9 +484,11 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
                     AddReaction(MessageJSON.guid, (ReactionPopup.children[x].classList.contains("reaction-popup-selected") ? 3000 : 2000) + x)
                     HideReactionPopups();
                     await new Promise(r => setTimeout(r, 100));
-                    PopupOpen = false;
                 })
             }
+
+            await new Promise(r => setTimeout(r, 100));
+            ReactionPopup.classList.add("reaction-popup-visible")
         })
     }
     if (MessageJSON.text != "\ufffc") {
@@ -829,37 +853,6 @@ const RefreshMessageStatus = async (json) => {
         }
         return;
     }
-
-    /*
-    if (json.action == "setAsRead")
-        ForceMarkAsRead = true
-
-    console.log(json)
-    console.log(ForceMarkAsRead)
-    while (document.getElementsByClassName("message-receipt")[0])
-        document.getElementsByClassName("message-receipt")[0].remove();
-    let Messages = document.getElementsByClassName("message")
-    let LastMessageSent;
-    for (let i = 0; i < Messages.length; i++) {
-        if (JSON.parse(Messages[i].getAttribute("rawjson")).sender == 1) {
-            LastMessageSent = Messages[i]
-        }
-    }
-
-    if (LastMessageSent) {
-        let NewReceipt = document.createElement("p");
-        NewReceipt.className = "message-receipt"
-        let DateRead = JSON.parse(LastMessageSent.getAttribute("rawjson")).dateRead;
-        NewReceipt.textContent = ((json.action == "setAsRead" || (JSON.parse(LastMessageSent.getAttribute("rawjson")).dateRead != 0)) || ForceMarkAsRead) ? `Read ${((Ts) => {
-            const Dt = new Date(Ts)
-            return `${Dt.getHours() > 12 ? Dt.getHours() - 12 : (Dt.getHours() == 0 ? 12 : Dt.getHours())}:${((Pad) => {
-                if (Pad.toString().length == 1)
-                    Pad = "0" + Pad
-                return Pad
-            })(Dt.getMinutes())} ${Dt.getHours() < 12 ? "AM" : "PM"}`
-        })(DateRead)}` : "Delivered"
-        MessageContainer.insertBefore(NewReceipt, LastMessageSent.nextSibling);
-    }*/
 }
 
 const ApplyReactions = (json) => {
@@ -997,7 +990,3 @@ setInterval(() => {
         }
     }
 }, 60000);
-
-document.documentElement.setAttribute('data-theme', 'light');
-if (window.navigator.userAgent.includes("DarkMode"))
-    document.documentElement.setAttribute('data-theme', 'dark');

@@ -28,40 +28,43 @@ const Home = async (Request) => {
         </div>
         <div class="page-view tab-hidden" id="page1">
             
-                <div class="messaging-toolbar">
-                    <div class="page-padding">
-                        <div class="homepage-toolbar">
-                            <p class="edit-list" style="min-width: 25px;" onclick="SwapTab(0)">
-                                􀆉
-                            </p>
-                            <div>
-                                <img class="avatar-image" src="./assets/default-user.png">
-                                <p id="avatar-name">
-                                    <span id="contact-name" class="privacy-hidden">
-                                        Unknown
-                                    </span>
-                                    <span id="contact-chevron">
-                                        􀆊
-                                    </span>
-                                </p>
-                            </div>
-                            <p class="new-message-button" style="margin-left: auto;" onclick="ShowSettings()">
-                            􀍟
+            <div class="messaging-toolbar">
+                <div class="page-padding">
+                    <div class="homepage-toolbar">
+                        <p class="edit-list" style="min-width: 25px;" onclick="SwapTab(0)">
+                            􀆉
+                        </p>
+                        <div>
+                            <img class="avatar-image" src="./assets/default-user.png">
+                            <p id="avatar-name">
+                                <span id="contact-name" class="privacy-hidden">
+                                    Unknown
+                                </span>
+                                <span id="contact-chevron">
+                                    􀆊
+                                </span>
                             </p>
                         </div>
-                    </div>
-                    <div class="separator-fullwidth">
+                        <p class="new-message-button" style="margin-left: auto;" onclick="ShowSettings()">
+                        􀍟
+                        </p>
                     </div>
                 </div>
-                <div id="messages-container">
+                <div class="separator-fullwidth">
+                </div>
+            </div>
+            <div id="messages-container">
 
+            </div>
+            <div id="send-toolbar">
+                <div class="send-toolbar-tools">
+                    􀁍
                 </div>
-                <div id="send-toolbar">
-                    <div class="send-toolbar-tools">
-                        􀁍
-                    </div>
-                    <input tabindex="-1" class="message-input" type="text" placeholder="iMessage" id="message-input">
-                </div>
+                <input tabindex="-1" class="message-input" type="text" placeholder="iMessage" id="message-input">
+            </div>
+
+            <div class="backdrop-blur backdrop-blur-hidden" onclick="HideReactionPopups()"></div>
+
         </div>
         <div class="page-view page-view-popup page-view-popup-hidden" id="settings-page">
             <div class="page-padding">
@@ -144,6 +147,15 @@ const Home = async (Request) => {
                 </div>
                 <div class="settings-option-container">
                     <div class="settings-option">
+                        <p class="settings-option-name">Dark Mode</p>
+                        <div class="settings-option-checkbox" id="settings-option-usedarkmode" checked="false">
+                            <div class="settings-option-checkbox-inner">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="settings-option-separator">
+                    </div>
+                    <div class="settings-option">
                         <p class="settings-option-name">Privacy Mode</p>
                         <div class="settings-option-checkbox" id="settings-option-useprivacymode" checked="false">
                             <div class="settings-option-checkbox-inner">
@@ -174,7 +186,6 @@ const Home = async (Request) => {
                 </div>
             </div>
         </div>
-        <div class="backdrop-blur backdrop-blur-hidden" onclick="HideReactionPopups()"></div>
     </main>
     <script>${await fs.readFile(path.join(__dirname, "../build/production.js"), { encoding: "utf-8" })}</script>
     `

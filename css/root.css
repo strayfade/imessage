@@ -20,6 +20,10 @@
     --background-1: var(--light-1);
     --background-2: var(--light-2);
     --recipient: rgb(calc(0.9 * 255), calc(0.9 * 255), calc(0.9 * 255));
+
+    --settings-bg: #efefef;
+    --settings-bg-2: #ffffff;
+    --settings-bg-3: #e3e3e3;
 }
 
 [data-theme='dark'] {
@@ -30,6 +34,10 @@
     --background-1: var(--dark-1);
     --background-2: var(--dark-2);
     --recipient: rgb(calc(0.15 * 255), calc(0.15 * 255), calc(0.15 * 255));
+
+    --settings-bg: #010101;
+    --settings-bg-2: #1c1c1e;
+    --settings-bg-3: #222222;
 }
 
 p,
@@ -48,7 +56,7 @@ body {
     margin: 0px;
     padding: 0px;
     overflow: hidden;
-    background-color: var(--background-0);
+    background-color: var(--settings-bg-2);
 }
 
 a,

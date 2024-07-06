@@ -1,15 +1,15 @@
 .backdrop-blur {
-    width: 100vw;
-    height: 100vh;
-    left: 0;
-    top: 0;
     overflow: hidden;
     z-index: 9;
-    backdrop-filter: blur(25px) brightness(60%);
+    backdrop-filter: blur(50px) brightness(35%);
     opacity: 1;
     transition-duration: 0.25s;
     pointer-events: all;
     position: absolute;
+    left: 0px;
+    top: 0px;
+    bottom: 0px;
+    right: 0px;
 }
 
 .backdrop-blur-hidden {

@@ -1,5 +1,5 @@
 .settings-option-container {
-    background-color: var(--foreground-2);
+    background-color: var(--settings-bg-2);
     border-radius: 15px;
     font-size: 18px;
     margin-bottom: 20px;
@@ -24,8 +24,9 @@
     opacity: 0.25;
 }
 .settings-option-separator {
-    background: var(--recipient);
+    background: var(--settings-bg-3);
     min-height: 1px;
+    margin-left: 16px;
 }
 .settings-option-input {
     font-family: 'SF Pro', sans-serif;

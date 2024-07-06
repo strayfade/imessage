@@ -22,7 +22,7 @@
 }
 
 .page-view-popup {
-    background-color: var(--recipient);
+    background-color: var(--settings-bg);
     position: absolute;
     left: 0;
     right: 0;

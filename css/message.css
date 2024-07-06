@@ -27,9 +27,13 @@
     margin-right: auto;
 }
 
-.message-visible {
+.message-visible, .message-clone {
     transform: translateX(0%);
     opacity: 1;
+}
+
+.message-clone {
+    z-index: 10;
 }
 
 .message-media {
