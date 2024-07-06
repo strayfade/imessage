@@ -27,7 +27,7 @@
     cursor: pointer;
     font-weight: bolder;
 }
-.reaction-popup span:hover {
-    color: var(--foreground-0);
+.reaction-popup span:hover, .reaction-popup .reaction-popup-selected {
+    color: white;
     background-color: var(--accent);
 }

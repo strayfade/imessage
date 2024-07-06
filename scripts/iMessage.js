@@ -451,9 +451,15 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
             //document.getElementsByClassName("backdrop-blur")[0].classList.remove('backdrop-blur-hidden')
             MessageContentItem.append(ReactionPopup)
 
+            let CurrentReactions = JSON.parse(MessageContentItem.getAttribute("rawjson")).reactions
+            for (let x = 0; x < CurrentReactions.length; x++) {
+                if (CurrentReactions[x].sender == 1 && CurrentReactions[x].reactionType < 3000) {
+                    ReactionPopup.children[CurrentReactions[x].reactionType - 2000].classList.add("reaction-popup-selected")
+                }
+            }
             for (let x = 0; x < ReactionPopup.children.length; x++) {
                 ReactionPopup.children[x].addEventListener("click", async () => {
-                    AddReaction(MessageJSON.guid, 2000 + x)
+                    AddReaction(MessageJSON.guid, (ReactionPopup.children[x].classList.contains("reaction-popup-selected") ? 3000 : 2000) + x)
                     HideReactionPopups();
                     await new Promise(r => setTimeout(r, 100));
                     PopupOpen = false;
@@ -603,6 +609,7 @@ const ProcessResponse = (json) => {
                 }
                 return NamesOut
             })();
+            RefreshMessageStatus(json)
             break;
         case "newMessage":
             for (const Message of json.data.message) {
@@ -711,6 +718,53 @@ const RefreshMessageStatus = async (json) => {
             const RawData = JSON.parse(Messages[x].getAttribute("rawjson"))
             if (RawData.guid == guid)
                 return Messages[x]
+        }
+    }
+
+    if (json.action == "fetchMessages") {
+        while (document.getElementsByClassName("message-receipt-delivered")[0])
+            document.getElementsByClassName("message-receipt-delivered")[0].remove()
+        while (document.getElementsByClassName("message-receipt-read")[0])
+            document.getElementsByClassName("message-receipt-read")[0].remove()
+        const Messages = document.getElementsByClassName("message")
+        let LastDelivered;
+        let LastRead;
+        for (let x = 0; x < Messages.length; x++) {
+            const RawData = JSON.parse(Messages[x].getAttribute("rawjson"))
+            if (RawData.sender == 1) {
+                if (RawData.dateRead)
+                    LastRead = Messages[x]
+                if (RawData.dateDelivered)
+                    LastDelivered = Messages[x]
+            }
+        }
+        if (LastRead) {
+            const NewIndicator = document.createElement("div")
+            NewIndicator.className = "message-receipt message-receipt-read"
+            const NewIndicatorPart1 = document.createElement("span")
+            const NewIndicatorPart2 = document.createElement("span")
+            NewIndicatorPart2.className = "message-receipt-time"
+            NewIndicatorPart1.textContent = "Read"
+            NewIndicatorPart2.textContent = GetTime(JSON.parse(LastRead.getAttribute("rawjson")).dateRead)
+            NewIndicator.appendChild(NewIndicatorPart1)
+            NewIndicator.appendChild(NewIndicatorPart2)
+            NewIndicator.classList.add("message-receipt-visible")
+            if (LastRead.nextSibling)
+                MessageContainer.insertBefore(NewIndicator, LastRead.nextSibling)
+            else
+                MessageContainer.appendChild(NewIndicator)
+        }
+        if (LastDelivered && (LastRead != LastDelivered)) {
+            const NewIndicator = document.createElement("div")
+            NewIndicator.className = "message-receipt message-receipt-delivered"
+            const NewIndicatorPart1 = document.createElement("span")
+            NewIndicatorPart1.textContent = "Delivered"
+            NewIndicator.appendChild(NewIndicatorPart1)
+            NewIndicator.classList.add("message-receipt-visible")
+            if (LastDelivered.nextSibling)
+                MessageContainer.insertBefore(NewIndicator, LastDelivered.nextSibling)
+            else
+                MessageContainer.appendChild(NewIndicator)
         }
     }
 
@@ -908,7 +962,7 @@ const ApplyTimestamps = (json) => {
                 }
             })(json.dateDelivered)
             let MessageTimestampTime = document.createElement("span")
-            MessageTimestampTime.textContent = GetTime(json.dateDelivered)
+            MessageTimestampTime.textContent = `, ${GetTime(json.dateDelivered)}`
 
             MessageTimestampContainer.appendChild(MessageTimestampDate)
             MessageTimestampContainer.appendChild(MessageTimestampTime)

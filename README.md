@@ -123,3 +123,4 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 - [ ] Message reactions popup
 - [ ] New reaction
 - [x] New message
+- [x] New message receipts
