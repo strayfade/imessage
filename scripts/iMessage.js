@@ -12,15 +12,11 @@ const Refresh = () => {
 }
 
 const FormatPhoneNumber = (Number = "+18005551234") => {
-    return `${
-        Number.substring(0, Number.length - 4 - 3 - 3)
-    } (${
-        Number.substring(Number.length - 4 - 3 - 3, Number.length - 4 - 3)
-    }) ${
-        Number.substring(Number.length - 4 - 3, Number.length - 4)
-    }-${
-        Number.substring(Number.length - 4, Number.length)
-    }`
+    return `${Number.substring(0, Number.length - 4 - 3 - 3)
+        } (${Number.substring(Number.length - 4 - 3 - 3, Number.length - 4 - 3)
+        }) ${Number.substring(Number.length - 4 - 3, Number.length - 4)
+        }-${Number.substring(Number.length - 4, Number.length)
+        }`
 }
 
 const GetTime = (time) => {
@@ -525,6 +521,7 @@ const SetTypingIndicator = (On = true) => {
     }
 }
 
+const FetchedChatsOnce = false
 const ProcessResponse = async (json) => {
     let Settings = JSON.parse(localStorage.getItem("serverSettings"))
     switch (json.action) {
@@ -624,7 +621,15 @@ const ProcessResponse = async (json) => {
                 HomepageMessageContainer.appendChild(UnreadMessageMarker)
                 HomepageMessageContainer.appendChild(MessageContainer)
 
+
+                if (FetchedChatsOnce)
+                    HomepageMessageContainer.classList.add("homepage-message-container-visible")
                 MessagesContainer.appendChild(HomepageMessageContainer)
+                if (!FetchedChatsOnce) {
+                    await new Promise(r => setTimeout(r, 100));
+                    HomepageMessageContainer.classList.add("homepage-message-container-visible")
+                }
+                FetchedChatsOnce = true;
             }
             break;
         case "fetchMessages":

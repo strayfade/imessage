@@ -41,3 +41,13 @@ img.user-avatar {
     margin-top: 20px;
     margin-bottom: 5px;
 }
+
+.homepage-message-container {
+    transform: translateY(50%);
+    transition-duration: 0.5s;
+    opacity: 0;
+}
+.homepage-message-container-visible {
+    transform: translateY(0%);
+    opacity: 1;
+}
