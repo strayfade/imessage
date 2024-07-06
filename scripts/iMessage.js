@@ -521,7 +521,7 @@ const SetTypingIndicator = (On = true) => {
     }
 }
 
-const FetchedChatsOnce = false
+let FetchedChatsOnce = false
 const ProcessResponse = async (json) => {
     let Settings = JSON.parse(localStorage.getItem("serverSettings"))
     switch (json.action) {
@@ -629,8 +629,8 @@ const ProcessResponse = async (json) => {
                     await new Promise(r => setTimeout(r, 100));
                     HomepageMessageContainer.classList.add("homepage-message-container-visible")
                 }
-                FetchedChatsOnce = true;
             }
+            FetchedChatsOnce = true;
             break;
         case "fetchMessages":
             json.data = json.data.reverse();
