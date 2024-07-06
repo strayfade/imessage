@@ -690,9 +690,8 @@ const SwapTab = (TabNum, Intent = "") => {
 
 const RefreshMessageStatus = async (json) => {
 
-    if (json.action == "setAsRead" && json.data.read != 0)
+    if (json.action == "setAsRead" && json.data.read == 0)
         return;
-    console.log(json.action, json.data)
 
     const GetMostRecentMessage = (guid) => {
         const Messages = document.getElementsByClassName("message")
@@ -715,8 +714,38 @@ const RefreshMessageStatus = async (json) => {
         }
     }
 
+    if (json.action == "newMessage") {
+        const Message = json.data.message[0]
+        if (Message && Message.sender == 1) {
+            while (document.getElementsByClassName("message-receipt-delivered")[0])
+                document.getElementsByClassName("message-receipt-delivered")[0].remove()
+            if (Message.sender == 1) {
+                const TargetMessage = GetMostRecentMessage();
+                let NewDeliveredIndicator;
+                if (!TargetMessage.nextSibling || (TargetMessage.nextSibling && !TargetMessage.nextSibling.classList.contains("message-receipt"))) {
+                    NewDeliveredIndicator = document.createElement("div")
+                    NewDeliveredIndicator.className = "message-receipt message-receipt-delivered"
+                    NewDeliveredIndicatorInner = document.createElement("span")
+                    NewDeliveredIndicator.appendChild(NewDeliveredIndicatorInner)
+                    if (TargetMessage.nextSibling)
+                        MessageContainer.insertBefore(NewDeliveredIndicator, TargetMessage.nextSibling)
+                    else
+                        MessageContainer.appendChild(NewDeliveredIndicator)
+                    NewDeliveredIndicator.childNodes[0].textContent = `Delivered`
+                }
+                else {
+                    NewDeliveredIndicator = TargetMessage.nextSibling
+                    NewDeliveredIndicator.childNodes[0].textContent = `Delivered`
+                }
+            }
+        }
+        return;
+    }
+
     if (json.action == "setAsRead" && json.data.read != 0) {
         if (json.data.guid) {
+            while (document.getElementsByClassName("message-receipt-delivered")[0])
+                document.getElementsByClassName("message-receipt-delivered")[0].remove()
             while (document.getElementsByClassName("message-receipt-read")[0])
                 document.getElementsByClassName("message-receipt-read")[0].remove()
             const TargetMessage = GetMessageByGuid(json.data.guid)
@@ -733,42 +762,14 @@ const RefreshMessageStatus = async (json) => {
                     MessageContainer.insertBefore(NewReadIndicator, TargetMessage.nextSibling)
                 else
                     MessageContainer.appendChild(NewReadIndicator)
+                NewReadIndicator.childNodes[0].textContent = `Read`
+                NewReadIndicator.childNodes[1].textContent = `${GetTime(json.data.read)}`
 
             }
             else {
                 NewReadIndicator = TargetMessage.nextSibling
-            }
-            console.log(NewReadIndicator)
-            NewReadIndicator.childNodes[0].textContent = `Read`
-            NewReadIndicator.childNodes[1].textContent = `${GetTime(json.data.read)}`
-        }
-        return;
-    }
-
-    return;
-
-    if (json.action == "newMessage") {
-        const Message = json.data.message[0]
-        if (Message) {
-            while (document.getElementsByClassName("message-receipt-delivered")[0])
-                document.getElementsByClassName("message-receipt-delivered")[0].remove()
-            if (Message.sender == 1) {
-                const TargetMessage = GetMostRecentMessage();
-                let NewDeliveredIndicator;
-                if (!TargetMessage.nextSibling || (TargetMessage.nextSibling && !TargetMessage.nextSibling.classList.contains("message-receipt"))) {
-                    NewDeliveredIndicator = document.createElement("div")
-                    NewDeliveredIndicator.className = "message-receipt message-receipt-delivered"
-                    NewDeliveredIndicatorInner = document.createElement("span")
-                    NewDeliveredIndicator.appendChild(NewDeliveredIndicatorInner)
-                    if (TargetMessage.nextSibling)
-                        MessageContainer.insertBefore(NewDeliveredIndicator, TargetMessage.nextSibling)
-                    else
-                        MessageContainer.appendChild(NewDeliveredIndicator)
-                }
-                else {
-                    NewDeliveredIndicator = TargetMessage.nextSibling
-                }
-                NewDeliveredIndicator.childNodes[0].textContent = `Delivered`
+                NewReadIndicator.childNodes[0].textContent = `Read`
+                NewReadIndicator.childNodes[1].textContent = `${GetTime(json.data.read)}`
             }
         }
         return;
