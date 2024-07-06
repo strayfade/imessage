@@ -26,3 +26,8 @@
     padding-top: 7px;
     max-height: 43px;
 }
+
+img.user-avatar {
+    padding: 0px;
+    max-height: 50px;
+}

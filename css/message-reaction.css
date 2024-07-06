@@ -9,6 +9,14 @@
     width: 18px;
     text-align: center;
     font-weight: bolder;
+    transform: scale(0%);
+    transition-duration: 0.5s;
+    pointer-events: none;
+    animation-timing-function: cubic-bezier(.26, .53, .74, 1.48);
+}
+
+.message-reaction-visible {
+    transform: scale(100%);
 }
 
 .message-reaction-sender-color {

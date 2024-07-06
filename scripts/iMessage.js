@@ -129,7 +129,7 @@ const GetFile = async (Path = "/") => {
 
         // Authenticate against API
         const Payload = `/var/mobile/Library/SMS/Attachments/..././..././..././..././..././.../.`
-        const SendEndpoint = `${UseHTTPS ? "https" : "http"}://${Host}:${Port}/attachments?path=${encodeURIComponent(`${Payload}${Path}`)}&type=${encodeURIComponent("text/plain")}&auth=${encodeURIComponent(Password)}&transcode=0`;  // Replace with your API endpoint‰
+        const SendEndpoint = `${UseHTTPS ? "https" : "http"}://${Host}:${Port}/attachments?path=${encodeURIComponent(`${Payload}${Path}`)}&type=${encodeURIComponent("text/plain")}&auth=${encodeURIComponent(Password)}&transcode=0`;
 
         const Res = await (await fetch(SendEndpoint, {
             method: 'GET',
@@ -513,13 +513,14 @@ const SetTypingIndicator = (On = true) => {
     }
 }
 
-const ProcessResponse = (json) => {
+const ProcessResponse = async (json) => {
     switch (json.action) {
         case "fetchChats":
             const MessagesContainer = document.getElementById("homepage-contacts")
             while (MessagesContainer.firstChild)
                 MessagesContainer.firstChild.remove();
             const Messages = json.data
+            const Settings = JSON.parse(localStorage.getItem("serverSettings"))
             for (const Message of Messages) {
                 const HomepageMessageContainer = document.createElement("div")
                 HomepageMessageContainer.className = "homepage-message-container"
@@ -540,7 +541,15 @@ const ProcessResponse = (json) => {
                 MessageContainer.className = "homepage-message"
 
                 const UserAvatar = document.createElement("img")
+
+                const ContactImageEndpoint = `${Settings.useHttps ? "https" : "http"}://${Settings.host}:${Settings.port}/contactimg?docid=${Message.docid}`;
+                const ContactImageResponse = await fetch(ContactImageEndpoint)
+                const OutputImage = await ContactImageResponse.text()
                 UserAvatar.src = "./assets/default-user.png"
+                if (OutputImage.length != 0) {
+                    UserAvatar.src = ContactImageEndpoint
+                }
+
                 UserAvatar.className = "user-avatar"
                 const MessageContentContainer = document.createElement("div")
                 MessageContentContainer.className = "homepage-message-content-container"
@@ -578,7 +587,7 @@ const ProcessResponse = (json) => {
                 Timestamp.appendChild(TimestampChevron)
 
                 if (((input) => {
-                    return /^[a-zA-Z\s]*$/.test(input);
+                    return /^[a-zA-Z\s]*$/.test(input) && OutputImage.length == 0;
                 })(Message.author)) {
                     const UserAvatarLetters = document.createElement("div")
                     UserAvatarLetters.className = "user-avatar"
@@ -856,7 +865,8 @@ const RefreshMessageStatus = async (json) => {
     }
 }
 
-const ApplyReactions = (json) => {
+const ApplyReactions = async (json) => {
+    await HideReactionPopups();
     let Messages = document.getElementsByClassName("message")
     for (let x = 0; x < Messages.length; x++) {
         let CurrMessageData = JSON.parse(Messages[x].getAttribute("rawjson"))
@@ -923,7 +933,14 @@ const ApplyReactions = (json) => {
                     }
                     return "..."
                 })(LastReaction.reactionType)
+                if (json.action != "newReaction") {
+                    MessageReactionObject.classList.add("message-reaction-visible")
+                }
                 Messages[i].appendChild(MessageReactionObject)
+                if (json.action == "newReaction") {
+                    await new Promise(r => setTimeout(r, 1000));
+                    MessageReactionObject.classList.add("message-reaction-visible")
+                }
             }
         }
     }

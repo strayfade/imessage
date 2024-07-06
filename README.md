@@ -58,7 +58,7 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 - [x] Contact search box
 - [x] Contact list
   - [x] Shows last message timestamp
-  - [ ] Shows custom contact images
+  - [x] Shows custom contact images
   - [x] Updates when receiving new messages
   - [ ] Shows typing indicators
 - [ ] Create new message to phone number
@@ -67,7 +67,7 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
   - [x] Updates automatically
 
 ### Message page
-- [ ] Shows profile images
+- [ ] Shows custom contact images
 - [x] Shows contact name
 - [x] Back button (header)
 - [ ] FaceTime button
