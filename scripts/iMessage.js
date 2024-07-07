@@ -41,10 +41,12 @@ const GetPrefetchedMessages = (ContactPhoneNumber) => {
     catch {
         localStorage.setItem("cachedConversations", JSON.stringify([]))
     }
-    const PrefetchedMessages = JSON.parse(localStorage.getItem("cachedConversations"))
-    for (const Item of PrefetchedMessages) {
-        if (Item.phone == ContactPhoneNumber) {
-            return Item.data
+    let PrefetchedMessages = JSON.parse(localStorage.getItem("cachedConversations"))
+    if (PrefetchedMessages) {
+        for (const Item of PrefetchedMessages) {
+            if (Item.phone == ContactPhoneNumber) {
+                return Item.data
+            }
         }
     }
 }
@@ -56,11 +58,16 @@ const SetPrefetchedMessage = (ContactPhoneNumber, Data) => {
     catch {
         localStorage.setItem("cachedConversations", JSON.stringify([]))
     }
-    const PrefetchedMessages = JSON.parse(localStorage.getItem("cachedConversations"))
-    for (const Item of PrefetchedMessages) {
-        if (Item.phone == ContactPhoneNumber) {
-            PrefetchedMessages.splice(PrefetchedMessages.indexOf(Item), 1)
+    let PrefetchedMessages = JSON.parse(localStorage.getItem("cachedConversations"))
+    if (PrefetchedMessages) {
+        for (const Item of PrefetchedMessages) {
+            if (Item.phone == ContactPhoneNumber) {
+                PrefetchedMessages.splice(PrefetchedMessages.indexOf(Item), 1)
+            }
         }
+    }
+    else {
+        PrefetchedMessages = []
     }
     PrefetchedMessages.push({
         phone: ContactPhoneNumber,
