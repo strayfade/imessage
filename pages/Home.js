@@ -167,7 +167,7 @@ const Home = async () => {
                         <div class="settings-option-separator">
                         </div>
                         <div class="settings-option">
-                            <p class="settings-option-name">Obscure Contacts</p>
+                            <p class="settings-option-name">Privacy Mode</p>
                             <div class="settings-option-checkbox" id="settings-option-useprivacymode" checked="false">
                                 <div class="settings-option-checkbox-inner">
                                 </div>
