@@ -62,8 +62,10 @@ const CSSProcessorOptions = {
 const CSSProcessor = require('clean-css')
 const JSProcessor = require('javascript-obfuscator')
 
+const { Log, LogColors } = require('./Log')
+
 const PackStylesheets = async () => {
-    //Log('[BUILD] - Merging CSS files...')
+    Log(`Merging stylesheets...`)
     let Stylesheet = ''
     let filenames = await fs.readdir(path.join(__dirname, "css"))
     for (let x = 0; x < filenames.length; x++) {
@@ -80,17 +82,19 @@ const PackStylesheets = async () => {
         Stylesheet = Stylesheet.replace('    ', '')
     }
 
+    Log(`Processing/minifying stylesheets...`)
     Stylesheet = new CSSProcessor(CSSProcessorOptions).minify(Stylesheet).styles;
 
     await fs.mkdir('./build', { recursive: true })
     let OutputFile = path.join(__dirname, '/build/production.css')
     await fs.writeFile(OutputFile, Stylesheet, { encoding: "utf-8" })
 
-    //Log(`[BUILD] - Finished file: ${OutputFile}`, LogColors.Success)
+    Log(`Finished stylesheets!`)
 }
 
+const ApplyObfuscation = false;
 const PackScripts = async () => {
-    //Log('[BUILD] - Merging Javascript files...')
+    Log(`Merging scripts...`)
     let Script = ''
     let filenames = await fs.readdir(path.join(__dirname, "scripts"))
     for (let x = 0; x < filenames.length; x++) {
@@ -102,24 +106,36 @@ const PackScripts = async () => {
         }
     }
 
-    //Script = JSProcessor.obfuscate(Script, JSProcessorOptions).getObfuscatedCode()
+    if (ApplyObfuscation) {
+        Log(`Applying Javascript obfuscation!`)
+        Script = JSProcessor.obfuscate(Script, JSProcessorOptions).getObfuscatedCode()
+    }
+    else {
+        Log(`Skipped Javascript obfuscation!`, LogColors.Warning)
+    }
 
     await fs.mkdir('./build', { recursive: true })
     let OutputFile = path.join(__dirname, '/build/production.js')
     await fs.writeFile(OutputFile, Script, { encoding: "utf-8" })
 
-    //Log(`[BUILD] - Finished file: ${OutputFile}`, LogColors.Success)
+    Log(`Finished scripts!`)
 }
 
 const { Home } = require('./pages/Home')
 const RunBuild = async () => {
+    Log(`Starting build!`)
+    const StartTime = Date.now();
     await PackStylesheets()
     await PackScripts()
-    const OutputHTML = await Home(Request);
+    const OutputHTML = await Home();
     await fs.writeFile(path.join(__dirname, '/build/index.html'), OutputHTML, { encoding: "utf-8" })
+    Log(`Moving dependencies to /build directory...`,)
     await fs.cp(path.join(__dirname, "fonts"), path.join(__dirname, "build", "fonts"), { recursive: true, force: true })
     await fs.cp(path.join(__dirname, "assets"), path.join(__dirname, "build", "assets"), { recursive: true, force: true })
+    Log(`Cleaning up...`,)
     await fs.rm(path.join(__dirname, "build", "production.css"))
     await fs.rm(path.join(__dirname, "build", "production.js"))
+    const EndTime = Date.now();
+    Log(`Build finished in ${EndTime - StartTime}ms!`, LogColors.Success)
 }
 RunBuild();

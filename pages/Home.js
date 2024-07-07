@@ -1,9 +1,15 @@
 const fs = require('fs').promises
 const path = require('path')
-const Home = async (Request) => {
+const { Log, LogColors } = require("../Log")
+const Home = async () => {
     return `
     <!DOCTYPE html>
-    <style>${await fs.readFile(path.join(__dirname, "../build/production.css"), { encoding: "utf-8" })}</style>
+    <style>${
+        await (async() => {
+            Log(`Embedding file "../build/production.css" into HTML document!`, LogColors.Success)
+            return await fs.readFile(path.join(__dirname, "../build/production.css"), { encoding: "utf-8" })    
+        })()
+    }</style>
     <title>Messages</title>
     <main> 
         <div class="page-view tab-visible" id="page0">
@@ -220,7 +226,12 @@ const Home = async (Request) => {
             </div>
         </div>
     </main>
-    <script>${await fs.readFile(path.join(__dirname, "../build/production.js"), { encoding: "utf-8" })}</script>
+    <script>${
+        await (async() => {
+            Log(`Embedding file "../build/production.js" into HTML document!`, LogColors.Success)
+            return await fs.readFile(path.join(__dirname, "../build/production.js"), { encoding: "utf-8" })    
+        })()
+    }</script>
     `
 }
 module.exports = { Home }
