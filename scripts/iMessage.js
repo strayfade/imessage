@@ -169,7 +169,7 @@ const ParsePlist = (Plist, Key) => {
 const ReloadServerInfo = async () => {
     const Plist = await GetFile("/System/Library/CoreServices/SystemVersion.plist")
     document.getElementById("server-connection-version").textContent = ParsePlist(Plist, "ProductVersion")
-    document.getElementById("server-connection-copyright").textContent = ParsePlist(Plist, "ProductCopyright")
+    document.getElementById("server-connection-build").textContent = ParsePlist(Plist, "ProductBuildVersion")
 }
 
 const LoadSettings = async () => {

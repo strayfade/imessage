@@ -22,14 +22,20 @@
 }
 
 .page-view-popup {
+    max-height: 100vh;
+    overflow-y: scroll;
+}
+
+.settings-scroll {
     background-color: var(--settings-bg);
     position: absolute;
     left: 0;
     right: 0;
-    bottom: 0;
     top: 50px;
-    border-radius: 50px;
+    border-top-left-radius: 50px;
+    border-top-right-radius: 50px;
     transition-timing-function: cubic-bezier(0, 0.7, 0.3, 1);
+    
 }
 
 .page-view-handle {

@@ -85,8 +85,8 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 - [ ] Displays loading screen
 
 ### Message receipts
-- [x] Receives message **Read** statuses
-- [x] Receives message **Delivered** statuses
+- [x] Receives/sends message **Read** statuses
+- [x] Receives/sends message **Delivered** statuses
 
 ### Message timestamps
 - [x] Receives per-message timestamps
