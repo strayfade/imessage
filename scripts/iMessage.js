@@ -346,9 +346,9 @@ const HideReactionPopups = async () => {
     if (document.getElementsByClassName("reaction-popup")[0])
         document.getElementsByClassName("reaction-popup")[0].classList.remove("reaction-popup-visible")
     document.getElementsByClassName("backdrop-blur")[0].classList.add('backdrop-blur-hidden')
-    await new Promise(r => setTimeout(r, 500));
-    //if (document.getElementsByClassName("message-clone")[0])
-    //    document.getElementsByClassName("message-clone")[0].remove()
+    await new Promise(r => setTimeout(r, 100));
+    while (document.getElementsByClassName("message-clone")[0])
+        document.getElementsByClassName("message-clone")[0].remove()
 }
 
 const ShowSettings = () => {
@@ -387,7 +387,7 @@ const GetMessages = async (Phone, Offset = 0, Limit = 250) => {
     }
     if (!GlobalSocket.OPEN)
         GlobalSocket = new WebSocket(WebsocketURL)
-    if (GlobalSocket) {
+    if (GlobalSocket && GlobalSocket.OPEN) {
         GlobalSocket.send(JSON.stringify({
             action: "fetchMessages",
             data: {
