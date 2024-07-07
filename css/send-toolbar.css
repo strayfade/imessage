@@ -21,7 +21,7 @@
     border: 1px solid var(--foreground-2);
 }
 
-.message-input-subject {
+input.message-input-subject {
     border-bottom: 1px solid var(--foreground-2);
     font-weight: 500;
 }
