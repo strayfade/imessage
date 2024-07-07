@@ -59,10 +59,12 @@ const Home = async (Request) => {
 
             </div>
             <div id="send-toolbar">
-                <div class="send-toolbar-tools">
-                    􀁍
+                <div id="send-toolbar-inner">
+                    <div id="send-inputs-container">
+                        <input tabindex="-1" class="message-input message-input-subject" type="text" placeholder="Subject" id="message-input-subject">
+                        <input tabindex="-1" class="message-input" type="text" placeholder="iMessage" id="message-input">
+                    </div>
                 </div>
-                <input tabindex="-1" class="message-input" type="text" placeholder="iMessage" id="message-input">
             </div>
 
             <div class="backdrop-blur backdrop-blur-hidden" onclick="HideReactionPopups()"></div>

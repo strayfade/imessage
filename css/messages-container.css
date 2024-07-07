@@ -1,6 +1,6 @@
 #messages-container {
-    height: calc(100vh - 52px - 20vh);
     overflow-y: scroll;
     overflow-x: hidden;
     padding-top: 20vh;
+    max-height: calc(100vh - 20vh - 100px);
 }

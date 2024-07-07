@@ -1,7 +1,7 @@
 .message {
     border-radius: 18px;
     padding: 6px 12px;
-    font-family: "SF Pro", sans-serif;
+    font-family: 'SF Pro', sans-serif;
     max-width: 60vw;
     width: max-content;
     margin: 6px 12px;
@@ -27,7 +27,8 @@
     margin-right: auto;
 }
 
-.message-visible, .message-clone {
+.message-visible,
+.message-clone {
     transform: translateX(0%);
     opacity: 1;
 }
@@ -39,4 +40,11 @@
 .message-media {
     background-color: transparent;
     margin: 0;
+}
+
+.message-content-partial {
+    margin: 0px;
+}
+.message-content-subject {
+    font-weight: 500;
 }

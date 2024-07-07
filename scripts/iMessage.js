@@ -11,6 +11,10 @@ const Refresh = () => {
     ConnectToServer();
 }
 
+let ATags = document.getElementsByTagName("a")
+for (const ATag of ATags)
+    ATag.setAttribute("tabindex", "-1")
+
 const FormatPhoneNumber = (Number = "+18005551234") => {
     return `${Number.substring(0, Number.length - 4 - 3 - 3)
         } (${Number.substring(Number.length - 4 - 3 - 3, Number.length - 4 - 3)
@@ -331,11 +335,15 @@ document.getElementById("message-input").addEventListener("keyup", () => {
 let LastMessageSent;
 const SendMessage = async () => {
     let TextMessage = document.getElementById("message-input").value
+    let SubjectLine = document.getElementById("message-input-subject").value
     document.getElementById("message-input").value = ""
+    document.getElementById("message-input-subject").value = ""
     document.activeElement = null
 
     // Create dummy element
-    let Bubbles = CreateMessageBubble(false, {}, TextMessage, 1, true);
+    let Bubbles = CreateMessageBubble(false, {
+        subject: SubjectLine.length > 0 ? SubjectLine : null
+    }, TextMessage, 1, true);
     for (const Bubble of Bubbles) {
         LastMessageSent = Bubble
         MessageContainer.append(Bubble)
@@ -381,7 +389,7 @@ const SendMessage = async () => {
                 text: TextMessage,
                 attachments: [],
                 address: CurrentChatNumber,
-                subject: null,
+                subject: SubjectLine.length > 0 ? SubjectLine : null,
             })
         })
     }
@@ -427,28 +435,40 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
         `
     }
     else {
-        if (!MessageJSON.payload) {
-            MessageContentItem.textContent = Message
+        if (MessageJSON.subject) {
+            let P1 = document.createElement("p")
+            P1.className = "message-content-partial message-content-subject"
+            P1.textContent = MessageJSON.subject
+            let P2 = document.createElement("p")
+            P2.className = "message-content-partial"
+            P2.textContent = Message
+            MessageContentItem.appendChild(P1)
+            MessageContentItem.appendChild(P2)
         }
-        else if (MessageJSON.payload && MessageJSON.payload != 0) {
-            const DecodedAttachmentPayload = atob(MessageJSON.payload)
-            let MessageSubtitle = DecodedAttachmentPayload.substring(DecodedAttachmentPayload.indexOf("") + 2)
-            MessageSubtitle = MessageSubtitle.substring(0, MessageSubtitle.indexOf("HIJKZ$classname") - 1).trim()
-            if (MessageSubtitle) {
-                MessageContentItem.classList.add("message-payload")
-                const MessageSub1 = document.createElement("img")
-                const MessageSub2 = document.createElement("p")
-                const MessageSub3 = document.createElement("p")
-                MessageSub3.classList.add("message-payload-notice")
-                const Attachment = MessageJSON.attachments[0]
-                if (Attachment && ServerSettings) {
-                    MessageSub1.src = `${ServerSettings.useHttps ? "https" : "http"}://${ServerSettings.host}:${ServerSettings.port}/attachments?path=${encodeURIComponent(Attachment[0])}&type=${encodeURIComponent(Attachment[1])}&auth=${ServerSettings.password}&transcode=1`
-                    MessageContentItem.appendChild(MessageSub1)
+        else {
+            if (!MessageJSON.payload) {
+                MessageContentItem.textContent = Message
+            }
+            else if (MessageJSON.payload && MessageJSON.payload != 0) {
+                const DecodedAttachmentPayload = atob(MessageJSON.payload)
+                let MessageSubtitle = DecodedAttachmentPayload.substring(DecodedAttachmentPayload.indexOf("") + 2)
+                MessageSubtitle = MessageSubtitle.substring(0, MessageSubtitle.indexOf("HIJKZ$classname") - 1).trim()
+                if (MessageSubtitle) {
+                    MessageContentItem.classList.add("message-payload")
+                    const MessageSub1 = document.createElement("img")
+                    const MessageSub2 = document.createElement("p")
+                    const MessageSub3 = document.createElement("p")
+                    MessageSub3.classList.add("message-payload-notice")
+                    const Attachment = MessageJSON.attachments[0]
+                    if (Attachment && ServerSettings) {
+                        MessageSub1.src = `${ServerSettings.useHttps ? "https" : "http"}://${ServerSettings.host}:${ServerSettings.port}/attachments?path=${encodeURIComponent(Attachment[0])}&type=${encodeURIComponent(Attachment[1])}&auth=${ServerSettings.password}&transcode=1`
+                        MessageContentItem.appendChild(MessageSub1)
+                    }
+                    MessageSub2.textContent = MessageSubtitle
+                    MessageSub3.textContent = "Unsupported Feature"
+                    MessageContentItem.appendChild(MessageSub2)
+                    MessageContentItem.appendChild(MessageSub3)
                 }
-                MessageSub2.textContent = MessageSubtitle
-                MessageSub3.textContent = "Unsupported Feature"
-                MessageContentItem.appendChild(MessageSub2)
-                MessageContentItem.appendChild(MessageSub3)
             }
         }
     }
@@ -795,10 +815,17 @@ const SwapTab = (TabNum, Intent = "") => {
                 MessageContainer.firstChild.remove();
             GetMessages(Phone)
             MarkAsRead(Phone)
+            document.getElementById("message-input-subject").value = ""
             document.getElementById("message-input").value = ""
             UpdateTypingStatus()
             CurrentChatNumber = Phone
+            document.getElementById("message-input-subject").setAttribute("tabIndex", "1")
+            document.getElementById("message-input").setAttribute("tabIndex", "2")
         }
+    }
+    else {
+        document.getElementById("message-input-subject").setAttribute("tabIndex", "-1")
+        document.getElementById("message-input").setAttribute("tabIndex", "-1")
     }
 }
 
