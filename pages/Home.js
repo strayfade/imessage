@@ -25,7 +25,7 @@ const Home = async () => {
                             <!-- <span class="new-message-button">􀈎</span> --!>
                         </p>
                     </div>
-                    <h1 class="app-header">Messages</h1>
+                    <h1 class="app-header" style="margin-bottom: -20px;">Messages</h1>
                     <input tabindex="-1" class="search-box" type="text" onkeyup="SearchContacts()" value="" placeholder="􀊫 Search"/>
                 </div>
                 <div id="homepage-contacts" style="overflow-y: scroll; flex: 1 1 auto;">

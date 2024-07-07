@@ -34,6 +34,19 @@ catch {
     }))
 }
 
+let LastContactsScrollTop = 0;
+let ContactsContainer = document.getElementById("homepage-contacts")
+ContactsContainer.addEventListener("scroll", (event) => {
+    let diff = ContactsContainer.scrollTop - LastContactsScrollTop;
+    if (diff < 0) {
+        document.getElementsByClassName("search-box")[0].removeAttribute("disabled")
+    }
+    else {
+        document.getElementsByClassName("search-box")[0].setAttribute("disabled", true)
+    }
+    LastContactsScrollTop = ContactsContainer.scrollTop
+})
+
 let ContactImgCache = []
 const GetCachedContactImg = (docid) => {
     for (const Elem of ContactImgCache) {
@@ -877,7 +890,7 @@ const ProcessResponse = async (json) => {
     ApplyReactions(json)
 
     // Scroll to bottom
-    MessageContainer.scrollTop = MessageContainer.scrollHeight;
+    //MessageContainer.scrollTop = MessageContainer.scrollHeight;
 }
 
 const SwapTab = (TabNum, Intent = "") => {

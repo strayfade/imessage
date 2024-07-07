@@ -8,12 +8,23 @@
     font-size: 18px;
     color: var(--foreground-0);
     margin-bottom: 20px;
+    transition: 0.05s;
+    pointer-events: all;
+    margin-top: 26px;
 }
 
 .search-box:active,
 .search-box:focus {
     outline: none;
     border: none;
+}
+
+.search-box:disabled {
+    height: 0px;
+    padding-top: 0px;
+    padding-bottom: 0px;
+    margin-bottom: 0px;
+    pointer-events: none;
 }
 
 ::-webkit-input-placeholder {
