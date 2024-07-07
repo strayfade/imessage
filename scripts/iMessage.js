@@ -394,6 +394,7 @@ document.getElementById("message-input").addEventListener("keydown", (ev) => {
 const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message = "", Sender = 0, AddTail = true, AllowReactions = true) => {
     let OutMessages = []
 
+    let ServerSettings = JSON.parse(localStorage.getItem("serverSettings"))
     if (!TypingIndicator) {
         if (MessageJSON.text == "\ufffc") {
             const Attachments = MessageJSON.attachments
@@ -406,13 +407,8 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
                 MessageContentItem.className = "message"
                 MessageContentItem.classList.add("message-media")
                 MessageContentItem.classList.add(Sender ? "message-sender" : "message-recipient")
-                let ServerSettings = JSON.parse(localStorage.getItem("serverSettings"))
                 if (ServerSettings) {
-                    let Host = ServerSettings.host
-                    let Port = ServerSettings.port
-                    let UseHTTPS = ServerSettings.useHttps
-                    let Password = ServerSettings.password
-                    MessageContentItem.src = `${UseHTTPS ? "https" : "http"}://${Host}:${Port}/attachments?path=${encodeURIComponent(Attachment[0])}&type=${encodeURIComponent(Attachment[1])}&auth=${Password}&transcode=1`
+                    MessageContentItem.src = `${ServerSettings.useHttps ? "https" : "http"}://${ServerSettings.host}:${ServerSettings.port}/attachments?path=${encodeURIComponent(Attachment[0])}&type=${encodeURIComponent(Attachment[1])}&auth=${ServerSettings.password}&transcode=1`
                 }
                 OutMessages.push(MessageContentItem)
             }
@@ -431,7 +427,30 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
         `
     }
     else {
-        MessageContentItem.textContent = Message
+        if (!MessageJSON.payload) {
+            MessageContentItem.textContent = Message
+        }
+        else if (MessageJSON.payload && MessageJSON.payload != 0) {
+            const DecodedAttachmentPayload = atob(MessageJSON.payload)
+            let MessageSubtitle = DecodedAttachmentPayload.substring(DecodedAttachmentPayload.indexOf("") + 2)
+            MessageSubtitle = MessageSubtitle.substring(0, MessageSubtitle.indexOf("HIJKZ$classname") - 1).trim()
+            if (MessageSubtitle) {
+                MessageContentItem.classList.add("message-payload")
+                const MessageSub1 = document.createElement("img")
+                const MessageSub2 = document.createElement("p")
+                const MessageSub3 = document.createElement("p")
+                MessageSub3.classList.add("message-payload-notice")
+                const Attachment = MessageJSON.attachments[0]
+                if (Attachment && ServerSettings) {
+                    MessageSub1.src = `${ServerSettings.useHttps ? "https" : "http"}://${ServerSettings.host}:${ServerSettings.port}/attachments?path=${encodeURIComponent(Attachment[0])}&type=${encodeURIComponent(Attachment[1])}&auth=${ServerSettings.password}&transcode=1`
+                    MessageContentItem.appendChild(MessageSub1)
+                }
+                MessageSub2.textContent = MessageSubtitle
+                MessageSub3.textContent = "Unsupported Feature"
+                MessageContentItem.appendChild(MessageSub2)
+                MessageContentItem.appendChild(MessageSub3)
+            }
+        }
     }
 
     if (AddTail || TypingIndicator) {
@@ -654,7 +673,6 @@ const ProcessResponse = async (json) => {
                 }
                 Iter++
             }
-            console.log(docid)
 
             const UserImageContainer = document.getElementById("user-avatar-container")
             while (UserImageContainer.firstChild)

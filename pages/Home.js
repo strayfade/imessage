@@ -4,6 +4,7 @@ const Home = async (Request) => {
     return `
     <!DOCTYPE html>
     <style>${await fs.readFile(path.join(__dirname, "../build/production.css"), { encoding: "utf-8" })}</style>
+    <title>Messages</title>
     <main> 
         <div class="page-view tab-visible" id="page0">
             <div class="fullscreen-scroll">
