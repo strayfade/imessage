@@ -73,8 +73,6 @@ const Home = async () => {
                 </div>
             </div>
 
-            <div class="backdrop-blur backdrop-blur-hidden" onclick="HideReactionPopups()"></div>
-
         </div>
         <div class="page-view page-view-popup page-view-popup-hidden" id="settings-page">
             <div class="settings-scroll">
@@ -224,6 +222,9 @@ const Home = async () => {
             </div>
         </div>
     </main>
+
+    <div class="backdrop-blur backdrop-blur-hidden" onclick="HideReactionPopups()"></div>
+    
     <script>${
         await (async() => {
             Log(`Embedding file "../build/production.js" into HTML document!`, LogColors.Success)

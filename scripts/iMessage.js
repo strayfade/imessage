@@ -347,8 +347,8 @@ const HideReactionPopups = async () => {
         document.getElementsByClassName("reaction-popup")[0].classList.remove("reaction-popup-visible")
     document.getElementsByClassName("backdrop-blur")[0].classList.add('backdrop-blur-hidden')
     await new Promise(r => setTimeout(r, 500));
-    while (document.getElementsByClassName("message-clone")[0])
-        document.getElementsByClassName("message-clone")[0].remove()
+    //if (document.getElementsByClassName("message-clone")[0])
+    //    document.getElementsByClassName("message-clone")[0].remove()
 }
 
 const ShowSettings = () => {
@@ -621,16 +621,6 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
 
             const MessageArea = MessageContentItem.getBoundingClientRect()
 
-            // Clone current message to display on top-level
-            const CloneMessage = CreateMessageBubble(TypingIndicator, MessageJSON, Message, Sender, AddTail, false)[0]
-            CloneMessage.classList.add("message-clone")
-            document.getElementById("page1").appendChild(CloneMessage)
-            CloneMessage.style.top = `-${window.visualViewport.height - MessageArea.top - 46}px`
-            if (Sender)
-                CloneMessage.style.right = `${window.visualViewport.width - MessageArea.right - 12}px`
-            else
-                CloneMessage.style.left = `${MessageArea.left - 12}px`
-
             // Create new tapback popup
             let ReactionPopup = document.createElement("div")
             ReactionPopup.classList.add("reaction-popup")
@@ -653,6 +643,19 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
             // Attach tapback popup to message
             document.getElementsByClassName("backdrop-blur")[0].classList.remove('backdrop-blur-hidden')
             document.body.appendChild(ReactionPopup)
+
+            // Clone current message to display on top-level
+            const CloneMessage = CreateMessageBubble(TypingIndicator, MessageJSON, Message, Sender, AddTail, false)[0]
+            CloneMessage.classList.add("message-clone")
+
+            if (document.getElementsByClassName("message-clone")[0])
+                document.getElementsByClassName("message-clone")[0].remove()
+            document.getElementsByClassName("reaction-popup")[0].parentElement.insertBefore(CloneMessage, document.getElementsByClassName("reaction-popup")[0])
+            CloneMessage.style.top = `${MessageArea.top - 6}px`
+            if (Sender)
+                CloneMessage.style.right = `${window.visualViewport.width - MessageArea.right - 12}px`
+            else
+                CloneMessage.style.left = `${MessageArea.left - 12}px`
 
             let CurrentReactions = JSON.parse(MessageContentItem.getAttribute("rawjson")).reactions
             for (let x = 0; x < CurrentReactions.length; x++) {
@@ -697,7 +700,7 @@ const SetTypingIndicator = (On = true) => {
 }
 
 const LoadFetchedMessages = async (json) => {
-    
+
     while (MessageContainer.firstChild)
         MessageContainer.firstChild.remove()
 
@@ -1283,7 +1286,6 @@ setInterval(() => {
     }
 }, 60000);
 
-console.log(GetPrefetchedContacts())
 if (GetPrefetchedContacts()) {
     LoadFetchedChats(GetPrefetchedContacts())
 }

@@ -1,7 +1,7 @@
 .backdrop-blur {
     overflow: hidden;
     z-index: 9;
-    backdrop-filter: blur(25px) brightness(25%);
+    backdrop-filter: blur(0px) brightness(25%);
     opacity: 1;
     transition-duration: 0.25s;
     pointer-events: all;
