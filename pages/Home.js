@@ -167,6 +167,33 @@ const Home = async (Request) => {
                                 </div>
                             </div>
                         </div>
+                        <div class="settings-option-separator">
+                        </div>
+                        <div class="settings-option">
+                            <p class="settings-option-name">Send Read Receipts</p>
+                            <div class="settings-option-checkbox" id="settings-option-usereadreceipts" checked="false">
+                                <div class="settings-option-checkbox-inner">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="settings-option-separator">
+                        </div>
+                        <div class="settings-option">
+                            <p class="settings-option-name">Send Typing Indicators</p>
+                            <div class="settings-option-checkbox" id="settings-option-usetypingindicators" checked="false">
+                                <div class="settings-option-checkbox-inner">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="settings-option-separator">
+                        </div>
+                        <div class="settings-option">
+                            <p class="settings-option-name">Show Subject Field</p>
+                            <div class="settings-option-checkbox" id="settings-option-usesubjectline" checked="false">
+                                <div class="settings-option-checkbox-inner">
+                                </div>
+                            </div>
+                        </div>
                     </div>
                     
                     <div class="settings-option-header">

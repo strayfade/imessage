@@ -112,11 +112,16 @@ const SaveSettings = () => {
     Password = SettingsObj.password
     let UIPrivate = document.getElementById("settings-option-useprivacymode").getAttribute("checked") == "true"
     let UIDark = document.getElementById("settings-option-usedarkmode").getAttribute("checked") == "true"
+    let UIReadReceipts = document.getElementById("settings-option-usereadreceipts").getAttribute("checked") == "true"
+    let UISubjectField = document.getElementById("settings-option-usesubjectline").getAttribute("checked") == "true"
+    let UISendTyping = document.getElementById("settings-option-usetypingindicators").getAttribute("checked") == "true"
     let SettingsObj2 = {
         uiPrivate: UIPrivate,
-        uiDark: UIDark
+        uiDark: UIDark,
+        uiReadReceipts: UIReadReceipts,
+        uiSubjectField: UISubjectField,
+        uiSendTyping: UISendTyping
     }
-    document.documentElement.style.setProperty("--privacy-blur", UIPrivate ? "5px" : "0px")
     let TempWebsocketURL = `${UseHTTPS ? "wss" : "ws"}://${Host}:${Port}/auth=${((len) => {
         let out = ""
         for (let x = 0; x < len; x++)
@@ -128,8 +133,6 @@ const SaveSettings = () => {
     localStorage.setItem("clientSettings", JSON.stringify(SettingsObj2))
     LoadSettings();
 }
-
-
 
 const GetFile = async (Path = "/") => {
     let ServerSettings = JSON.parse(localStorage.getItem("serverSettings"))
@@ -188,6 +191,7 @@ const LoadSettings = async () => {
         document.documentElement.style.setProperty("--privacy-blur", ClientSettings.uiPrivate ? "5px" : "0px")
         document.getElementById("settings-option-usedarkmode").setAttribute("checked", ClientSettings.uiDark ? "true" : "false")
         document.documentElement.setAttribute('data-theme', ClientSettings.uiDark ? 'dark' : 'light');
+        document.getElementById("message-input-subject").style.display = ClientSettings.uiSubjectField ? "inherit" : "none"
     }
 }
 LoadSettings();
@@ -279,6 +283,7 @@ const GetMessages = async (Phone, Offset = 0, Limit = 250) => {
 }
 
 const MarkAsRead = (Phone) => {
+    if (!JSON.parse(localStorage.getItem("clientSettings")).uiReadReceipts) return;
     if (!GlobalSocket.OPEN)
         GlobalSocket = new WebSocket(WebsocketURL)
     if (GlobalSocket) {
@@ -547,6 +552,7 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
 
 let CurrentTypingIndicator;
 const SetTypingIndicator = (On = true) => {
+    if (!JSON.parse(localStorage.getItem("clientSettings")).uiSendTyping) return;
     if (!CurrentTypingIndicator) {
         CurrentTypingIndicator = CreateMessageBubble(true)[0];
         MessageContainer.append(CurrentTypingIndicator)

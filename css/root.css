@@ -74,3 +74,9 @@ a:visited {
     user-select: none; /* Non-prefixed version, currently
                                     supported by Chrome, Edge, Opera and Firefox */
 }
+
+* {
+    --anim-curve: cubic-bezier(0, 0.7, 0.3, 1);
+    transition-timing-function: var(--anim-curve);
+    animation-timing-function: var(--anim-curve);
+}
