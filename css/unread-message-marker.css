@@ -3,11 +3,11 @@
     height: 75px;
 }
 .unread-message-marker-inner {
-    width: 4vw;
-    height: 4vw;
+    width: 15px;
+    height: 15px;
     border-radius: 100px;
     background-color: var(--accent);
-    margin-left: calc(10vw / 2 - 4vw / 2);
-    margin-top: calc(75px / 2 - 4vw / 2);
+    margin-left: calc(10vw / 2 - 7.5px);
+    margin-top: calc(75px / 2 - 7.5px);
     transform: scale(90%);
 }
