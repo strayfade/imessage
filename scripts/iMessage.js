@@ -5,6 +5,56 @@ var ChatsOffset;
 var WebsocketURL;
 var Password;
 
+try {
+    let ServerSettings = JSON.parse(localStorage.getItem("serverSettings"))
+    if (!ServerSettings.hasOwnProperty("host")) throw "Invalid settings"
+    if (!ServerSettings.hasOwnProperty("port")) throw "Invalid settings"
+    if (!ServerSettings.hasOwnProperty("password")) throw "Invalid settings"
+    if (!ServerSettings.hasOwnProperty("useHttps")) throw "Invalid settings"
+    let ClientSettings = JSON.parse(localStorage.getItem("clientSettings"))
+    if (!ClientSettings.hasOwnProperty("uiPrivate")) throw "Invalid settings"
+    if (!ClientSettings.hasOwnProperty("uiDark")) throw "Invalid settings"
+    if (!ClientSettings.hasOwnProperty("uiReadReceipts")) throw "Invalid settings"
+    if (!ClientSettings.hasOwnProperty("uiSubjectField")) throw "Invalid settings"
+    if (!ClientSettings.hasOwnProperty("uiSendTyping")) throw "Invalid settings"
+}
+catch {
+    localStorage.setItem("serverSettings", JSON.stringify({
+        host: "",
+        port: "",
+        password: "",
+        useHttps: false
+    }))
+    localStorage.setItem("clientSettings", JSON.stringify({
+        uiPrivate: false,
+        uiDark: false,
+        uiReadReceipts: false,
+        uiSubjectField: false,
+        uiSendTyping: true
+    }))
+}
+
+let ContactImgCache = []
+const GetCachedContactImg = (docid) => {
+    for (const Elem of ContactImgCache) {
+        if (Elem.docid == docid)
+            return Elem
+    }
+}
+const AddCachedContactImg = (docid, imageResponse) => {
+    let Contains = false;
+    for (const Elem of ContactImgCache) {
+        if (Elem.docid == docid)
+            Contains = true;
+    }
+    if (!Contains) {
+        ContactImgCache.push({
+            docid: docid,
+            imageResponse: imageResponse
+        })
+    }
+}
+
 const SupportJavascriptInterfaces = true
 
 const Refresh = () => {
@@ -44,56 +94,61 @@ const SearchContacts = () => {
 }
 
 const ConnectToServer = () => {
+    document.getElementById("server-connection-status").style.opacity = "1"
+    document.getElementById("server-connection-status").style.color = "var(--accent-3)"
+    document.getElementById("server-connection-status").textContent = "Inactive"
     return new Promise((resolve) => {
 
         // Create socket
-        GlobalSocket = new WebSocket(WebsocketURL)
+        try {
+            GlobalSocket = new WebSocket(WebsocketURL)
 
-        // Socket event listener for connection
-        GlobalSocket.onopen = async () => {
-            document.getElementById("server-connection-status").style.opacity = "1"
-            document.getElementById("server-connection-status").style.color = "var(--accent-2)"
-            document.getElementById("server-connection-status").textContent = "Connected"
-            await new Promise(r => setTimeout(r, 100));
-            GlobalSocket.send(JSON.stringify({
-                action: "fetchChats",
-                data: {
-                    offset: "0",
-                    limit: "50"
-                },
-                password: Password
-            }))
-            ReloadServerInfo()
+            // Socket event listener for connection
+            GlobalSocket.onopen = async () => {
+                document.getElementById("server-connection-status").style.opacity = "1"
+                document.getElementById("server-connection-status").style.color = "var(--accent-2)"
+                document.getElementById("server-connection-status").textContent = "Connected"
+                await new Promise(r => setTimeout(r, 100));
+                GlobalSocket.send(JSON.stringify({
+                    action: "fetchChats",
+                    data: {
+                        offset: "0",
+                        limit: "9999"
+                    },
+                    password: Password
+                }))
+                ReloadServerInfo()
 
-            resolve({
-                notification: `Connected to server!`
-            })
+                resolve({
+                    notification: `Connected to server!`
+                })
+            }
+
+            GlobalSocket.onerror = (error) => {
+                document.getElementById("server-connection-status").style.opacity = "1"
+                document.getElementById("server-connection-status").style.color = "var(--accent-3)"
+                document.getElementById("server-connection-status").textContent = "Errored"
+            }
+
+            GlobalSocket.onclose = (event) => {
+                document.getElementById("server-connection-status").style.opacity = "1"
+                document.getElementById("server-connection-status").style.color = "var(--accent-3)"
+                document.getElementById("server-connection-status").textContent = "Disconnected"
+            }
+
+            GlobalSocket.onmessage = async (event) => {
+                document.getElementById("server-connection-status").style.opacity = "1"
+                document.getElementById("server-connection-status").style.color = "var(--accent-2)"
+                document.getElementById("server-connection-status").textContent = "Active"
+                const json = JSON.parse(await event.data.text())
+                ProcessResponse(json)
+            }
         }
-
-        GlobalSocket.onerror = (error) => {
+        catch {
+            // no biggie i guess
             document.getElementById("server-connection-status").style.opacity = "1"
             document.getElementById("server-connection-status").style.color = "var(--accent-3)"
             document.getElementById("server-connection-status").textContent = "Errored"
-            resolve({
-                notification: `An error occurred while connecting: ${error.toString()}`
-            })
-        }
-
-        GlobalSocket.onclose = (event) => {
-            document.getElementById("server-connection-status").style.opacity = "1"
-            document.getElementById("server-connection-status").style.color = "var(--accent-3)"
-            document.getElementById("server-connection-status").textContent = "Disconnected"
-            resolve({
-                notification: event.wasClean ? `Server connection closed successfully.` : `Connection to server lost!`
-            })
-        }
-
-        GlobalSocket.onmessage = async (event) => {
-            document.getElementById("server-connection-status").style.opacity = "1"
-            document.getElementById("server-connection-status").style.color = "var(--accent-2)"
-            document.getElementById("server-connection-status").textContent = "Active"
-            const json = JSON.parse(await event.data.text())
-            ProcessResponse(json)
         }
     })
 }
@@ -188,7 +243,7 @@ const LoadSettings = async () => {
     let ClientSettings = JSON.parse(localStorage.getItem("clientSettings"))
     if (ClientSettings) {
         document.getElementById("settings-option-useprivacymode").setAttribute("checked", ClientSettings.uiPrivate ? "true" : "false")
-        document.documentElement.style.setProperty("--privacy-blur", ClientSettings.uiPrivate ? "5px" : "0px")
+        document.documentElement.style.setProperty("--privacy-blur", ClientSettings.uiPrivate ? "7.5px" : "0px")
         document.getElementById("settings-option-usedarkmode").setAttribute("checked", ClientSettings.uiDark ? "true" : "false")
         document.documentElement.setAttribute('data-theme', ClientSettings.uiDark ? 'dark' : 'light');
         document.getElementById("message-input-subject").style.display = ClientSettings.uiSubjectField ? "inherit" : "none"
@@ -276,7 +331,7 @@ const GetMessages = async (Phone, Offset = 0, Limit = 250) => {
         action: "fetchChats",
         data: {
             offset: "0",
-            limit: "50"
+            limit: "9999"
         },
         password: Password
     }))
@@ -595,19 +650,27 @@ const ProcessResponse = async (json) => {
                 MessageContainer.className = "homepage-message"
 
                 const UserAvatar = document.createElement("img")
-                const ContactImageEndpoint = `${Settings.useHttps ? "https" : "http"}://${Settings.host}:${Settings.port}/contactimg?docid=${Message.docid}`;
-                const ContactImageResponse = await fetch(ContactImageEndpoint)
-                const OutputImage = await ContactImageResponse.text()
                 UserAvatar.src = "./assets/default-user.png"
-                if (OutputImage.length != 0) {
+
+                let OutputImage = false;
+                const ContactImageEndpoint = `${Settings.useHttps ? "https" : "http"}://${Settings.host}:${Settings.port}/contactimg?docid=${Message.docid}`;
+                if (GetCachedContactImg(ContactImageEndpoint)) {
+                    OutputImage = GetCachedContactImg(ContactImageEndpoint).imageResponse
+                }
+                else {
+                    const ContactImageResponse = await fetch(ContactImageEndpoint)
+                    OutputImage = await ContactImageResponse.text()
+                    AddCachedContactImg(ContactImageEndpoint, OutputImage.length > 0)
+                }
+                if (OutputImage) {
                     UserAvatar.src = ContactImageEndpoint
                 }
-                UserAvatar.className = "user-avatar"
+                UserAvatar.className = "user-avatar privacy-hidden"
                 if (((input) => {
-                    return /^[a-zA-Z\s]*$/.test(input) && OutputImage.length == 0;
+                    return /^[a-zA-Z\s]*$/.test(input) && !OutputImage;
                 })(Message.author)) {
                     const UserAvatarLetters = document.createElement("div")
-                    UserAvatarLetters.className = "user-avatar"
+                    UserAvatarLetters.className = "user-avatar privacy-hidden"
                     UserAvatarLetters.textContent = (() => {
                         const words = Message.author.toString().split(' ');
                         let initials = '';
@@ -623,7 +686,6 @@ const ProcessResponse = async (json) => {
                 else {
                     MessageContainer.appendChild(UserAvatar)
                 }
-
 
                 const MessageContentContainer = document.createElement("div")
                 MessageContentContainer.className = "homepage-message-content-container"
@@ -703,20 +765,28 @@ const ProcessResponse = async (json) => {
             const UserImageContainer = document.getElementById("user-avatar-container")
             while (UserImageContainer.firstChild)
                 UserImageContainer.firstChild.remove()
+
             const UserAvatar = document.createElement("img")
+
+            let OutputImage = false;
             const ContactImageEndpoint = `${Settings.useHttps ? "https" : "http"}://${Settings.host}:${Settings.port}/contactimg?docid=${docid}`;
-            const ContactImageResponse = await fetch(ContactImageEndpoint)
-            const OutputImage = await ContactImageResponse.text()
-            UserAvatar.src = "./assets/default-user.png"
-            if (OutputImage.length != 0) {
+            if (GetCachedContactImg(ContactImageEndpoint)) {
+                OutputImage = GetCachedContactImg(ContactImageEndpoint).imageResponse
+            }
+            else {
+                const ContactImageResponse = await fetch(ContactImageEndpoint)
+                OutputImage = await ContactImageResponse.text()
+                AddCachedContactImg(ContactImageEndpoint, OutputImage.length > 0)
+            }
+            if (OutputImage) {
                 UserAvatar.src = ContactImageEndpoint
             }
-            UserAvatar.className = "user-avatar message-user-avatar"
+            UserAvatar.className = "user-avatar message-user-avatar privacy-hidden"
             if (((input) => {
-                return /^[a-zA-Z\s]*$/.test(input) && OutputImage.length == 0;
+                return /^[a-zA-Z\s]*$/.test(input) && !OutputImage;
             })(NamesFound[0])) {
                 const UserAvatarLetters = document.createElement("div")
-                UserAvatarLetters.className = "user-avatar message-user-avatar"
+                UserAvatarLetters.className = "user-avatar message-user-avatar privacy-hidden"
                 UserAvatarLetters.textContent = (() => {
                     const words = NamesFound[0].toString().split(' ');
                     let initials = '';
@@ -746,24 +816,36 @@ const ProcessResponse = async (json) => {
             break;
         case "newMessage":
             for (const Message of json.data.message) {
-                if (Message.sender == 0) {
-                    let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, true);
-                    for (const Bubble of Bubbles) {
-                        MessageContainer.append(Bubble)
+                if (Message.chatId == CurrentChatNumber) {
+                    if (Message.sender == 0) {
+                        let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, true);
+                        for (const Bubble of Bubbles) {
+                            MessageContainer.append(Bubble)
+                            MessageContainer.scrollTop = MessageContainer.scrollHeight;
+                            Bubble.classList.add("message-visible")
+                        }
+                    }
+                    else {
+                        let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, true);
+                        for (const Bubble of Bubbles) {
+                            Bubble.classList.add("message-visible")
+                            MessageContainer.append(Bubble)
+                        }
+                        if (LastMessageSent) {
+                            LastMessageSent.remove()
+                        }
                         MessageContainer.scrollTop = MessageContainer.scrollHeight;
-                        Bubble.classList.add("message-visible")
                     }
                 }
                 else {
-                    let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, true);
-                    for (const Bubble of Bubbles) {
-                        Bubble.classList.add("message-visible")
-                        MessageContainer.append(Bubble)
-                    }
-                    if (LastMessageSent) {
-                        LastMessageSent.remove()
-                    }
-                    MessageContainer.scrollTop = MessageContainer.scrollHeight;
+                    GlobalSocket.send(JSON.stringify({
+                        action: "fetchChats",
+                        data: {
+                            offset: "0",
+                            limit: "9999"
+                        },
+                        password: Password
+                    }))
                 }
             }
             if (json.data.message[0].sender == 0 && SupportJavascriptInterfaces) {
@@ -1104,7 +1186,7 @@ setInterval(() => {
                 action: "fetchChats",
                 data: {
                     offset: "0",
-                    limit: "50"
+                    limit: "9999"
                 },
                 password: Password
             }))

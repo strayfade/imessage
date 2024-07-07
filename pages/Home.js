@@ -61,7 +61,7 @@ const Home = async () => {
                 <div class="separator-fullwidth">
                 </div>
             </div>
-            <div id="messages-container">
+            <div id="messages-container" style="flex: 1 1 auto;">
 
             </div>
             <div id="send-toolbar">
@@ -89,7 +89,7 @@ const Home = async () => {
                             Force Refresh
                         </p>
                     </div>
-
+                    <h1 class="app-header">Settings</h1>
                     <div class="settings-option-container">
                         <div class="settings-option">
                             <p class="settings-option-name">IP Address</p>
@@ -106,51 +106,33 @@ const Home = async () => {
                         <div class="settings-option-separator">
                         </div>
                         <div class="settings-option">
+                            <p class="settings-option-name">Password</p>
+                            <input tabindex="-1" class="settings-option-input" id="settings-option-password" type="password" placeholder="Optional" onkeyup="SaveSettings()"/>
+                            <p class="settings-option-chevron">􀆊</p>
+                        </div>
+                        <div class="settings-option-separator">
+                        </div>
+                        <div class="settings-option">
                             <p class="settings-option-name">HTTPS</p>
                             <div class="settings-option-checkbox" id="settings-option-usehttps" checked="false">
                                 <div class="settings-option-checkbox-inner">
                                 </div>
                             </div>
                         </div>
+                        <!-- <div class="settings-option" onclick="TestServerConnection()">
+                            <p class="settings-option-name">Reconnect</p>
+                            <p class="settings-option-value"></p>
+                            <p class="settings-option-chevron">􀆊</p>
+                        </div> -->
                         <div class="settings-option-separator">
                         </div>
                         <div class="settings-option">
-                            <p class="settings-option-name">Password</p>
-                            <input tabindex="-1" class="settings-option-input" id="settings-option-password" type="password" placeholder="Optional" onkeyup="SaveSettings()"/>
-                            <p class="settings-option-chevron">􀆊</p>
+                            <p class="settings-option-name">Current Status</p>
+                            <p class="settings-option-value" id="server-connection-status" style="opacity: 1; color: var(--accent-3);">Inactive</p>
                         </div>
                     </div>
                     <div class="settings-option-footer privacy-hidden" style="display: none;" id="settings-option-showurl">
                         Socket address:
-                    </div>
-
-                    <div class="settings-option-header">
-                        Server Information
-                    </div>
-                    <div class="settings-option-container">
-                        <div class="settings-option" onclick="TestServerConnection()">
-                            <p class="settings-option-name">Reconnect</p>
-                            <p class="settings-option-value"></p>
-                            <p class="settings-option-chevron">􀆊</p>
-                        </div>
-                        <div class="settings-option-separator">
-                        </div>
-                        <div class="settings-option">
-                            <p class="settings-option-name">Status</p>
-                            <p class="settings-option-value" id="server-connection-status" style="opacity: 1; color: var(--accent-3);">Disconnected</p>
-                        </div>
-                        <div class="settings-option-separator">
-                        </div>
-                        <div class="settings-option">
-                            <p class="settings-option-name">Version</p>
-                            <p class="settings-option-value" id="server-connection-version">Unknown</p>
-                        </div>
-                        <div class="settings-option-separator">
-                        </div>
-                        <div class="settings-option">
-                            <p class="settings-option-name">Build</p>
-                            <p class="settings-option-value" id="server-connection-build">Unknown</p>
-                        </div>
                     </div>
                     
                     <div class="settings-option-header">
@@ -201,7 +183,23 @@ const Home = async () => {
                             </div>
                         </div>
                     </div>
-                    
+
+                    <div class="settings-option-header">
+                        Server Information
+                    </div>
+                    <div class="settings-option-container">
+                        <div class="settings-option">
+                            <p class="settings-option-name">iOS Version</p>
+                            <p class="settings-option-value" id="server-connection-version">Unknown</p>
+                        </div>
+                        <div class="settings-option-separator">
+                        </div>
+                        <div class="settings-option">
+                            <p class="settings-option-name">iOS Build</p>
+                            <p class="settings-option-value" id="server-connection-build">Unknown</p>
+                        </div>
+                    </div>
+
                     <div class="settings-option-header">
                         About
                     </div>

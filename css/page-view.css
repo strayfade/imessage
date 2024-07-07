@@ -63,3 +63,9 @@
 #page1.tab-hidden {
     left: 100vw;
 }
+
+#page1 {
+    display: flex;
+    flex-flow: column;
+    height: 100%;
+}

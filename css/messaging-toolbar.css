@@ -5,5 +5,5 @@
     top: 0;
     backdrop-filter: blur(100px);
     z-index: 2;
-    background: rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, 0.08);
 }
