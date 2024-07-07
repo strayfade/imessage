@@ -34,6 +34,56 @@ catch {
     }))
 }
 
+const GetPrefetchedMessages = (ContactPhoneNumber) => {
+    try {
+        JSON.parse(localStorage.getItem("cachedConversations"))
+    }
+    catch {
+        localStorage.setItem("cachedConversations", JSON.stringify([]))
+    }
+    const PrefetchedMessages = JSON.parse(localStorage.getItem("cachedConversations"))
+    for (const Item of PrefetchedMessages) {
+        if (Item.phone == ContactPhoneNumber) {
+            return Item.data
+        }
+    }
+}
+
+const SetPrefetchedMessage = (ContactPhoneNumber, Data) => {
+    try {
+        JSON.parse(localStorage.getItem("cachedConversations"))
+    }
+    catch {
+        localStorage.setItem("cachedConversations", JSON.stringify([]))
+    }
+    const PrefetchedMessages = JSON.parse(localStorage.getItem("cachedConversations"))
+    for (const Item of PrefetchedMessages) {
+        if (Item.phone == ContactPhoneNumber) {
+            PrefetchedMessages.splice(PrefetchedMessages.indexOf(Item), 1)
+        }
+    }
+    PrefetchedMessages.push({
+        phone: ContactPhoneNumber,
+        data: Data
+    })
+    localStorage.setItem("cachedConversations", JSON.stringify(PrefetchedMessages))
+    return Data;
+}
+
+const GetPrefetchedContacts = () => {
+    try {
+        JSON.parse(localStorage.getItem("cachedContacts"))
+    }
+    catch {
+        localStorage.setItem("cachedContacts", JSON.stringify([]))
+    }
+    return JSON.parse(localStorage.getItem("cachedContacts"))
+}
+
+const SetPrefetchedContacts = (Data) => {
+    localStorage.setItem("cachedContacts", JSON.stringify(Data))
+}
+
 let LastContactsScrollTop = 0;
 let ContactsContainer = document.getElementById("homepage-contacts")
 ContactsContainer.addEventListener("scroll", (event) => {
@@ -106,10 +156,11 @@ const SearchContacts = () => {
     }
 }
 
-const ConnectToServer = () => {
+const ConnectToServer = async () => {
     document.getElementById("server-connection-status").style.opacity = "1"
     document.getElementById("server-connection-status").style.color = "var(--accent-3)"
     document.getElementById("server-connection-status").textContent = "Inactive"
+
     return new Promise((resolve) => {
 
         // Create socket
@@ -121,7 +172,6 @@ const ConnectToServer = () => {
                 document.getElementById("server-connection-status").style.opacity = "1"
                 document.getElementById("server-connection-status").style.color = "var(--accent-2)"
                 document.getElementById("server-connection-status").textContent = "Connected"
-                await new Promise(r => setTimeout(r, 100));
                 GlobalSocket.send(JSON.stringify({
                     action: "fetchChats",
                     data: {
@@ -325,6 +375,9 @@ for (let l = 0; l < Checkboxes.length; l++) {
 let MessageContainer = document.getElementById("messages-container")
 
 const GetMessages = async (Phone, Offset = 0, Limit = 250) => {
+    if (GetPrefetchedMessages(Phone)) {
+        await LoadFetchedMessages(GetPrefetchedMessages(Phone))
+    }
     if (!GlobalSocket.OPEN)
         GlobalSocket = new WebSocket(WebsocketURL)
     if (GlobalSocket) {
@@ -538,7 +591,7 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
                         MessageContentItem.appendChild(MessageSub1)
                     }
                     MessageSub2.textContent = MessageSubtitle
-                    MessageSub3.textContent = "Unsupported Feature"
+                    MessageSub3.textContent = "Unsupported Interaction"
                     MessageContentItem.appendChild(MessageSub2)
                     MessageContentItem.appendChild(MessageSub3)
                 }
@@ -622,9 +675,11 @@ let CurrentTypingIndicator;
 const SetTypingIndicator = (On = true) => {
     if (!JSON.parse(localStorage.getItem("clientSettings")).uiSendTyping) return;
     if (!CurrentTypingIndicator) {
+        let StartingHeight = MessageContainer.scrollHeight
         CurrentTypingIndicator = CreateMessageBubble(true)[0];
         MessageContainer.append(CurrentTypingIndicator)
-        MessageContainer.scrollTop = MessageContainer.scrollHeight;
+        let EndingHeight = MessageContainer.scrollHeight
+        MessageContainer.scrollTop += EndingHeight - StartingHeight;
     }
     if (On) {
         CurrentTypingIndicator.classList.add("message-visible")
@@ -634,174 +689,127 @@ const SetTypingIndicator = (On = true) => {
     }
 }
 
-let FetchedChatsOnce = false
-const ProcessResponse = async (json) => {
+const LoadFetchedMessages = async (json) => {
+    
+    while (MessageContainer.firstChild)
+        MessageContainer.firstChild.remove()
+
     let Settings = JSON.parse(localStorage.getItem("serverSettings"))
-    switch (json.action) {
-        case "fetchChats":
-            const MessagesContainer = document.getElementById("homepage-contacts")
-            while (MessagesContainer.firstChild)
-                MessagesContainer.firstChild.remove();
-            const Messages = json.data
-            for (const Message of Messages) {
-                const HomepageMessageContainer = document.createElement("div")
-                HomepageMessageContainer.className = "homepage-message-container"
-                HomepageMessageContainer.addEventListener("click", () => {
-                    SwapTab(1, `loadmsg:${Message.address}`)
-                })
+    json.data = json.data.reverse();
 
-                const UnreadMessageMarker = document.createElement("div")
-                UnreadMessageMarker.className = "unread-message-marker"
-                const UnreadMessageMarkerInner = document.createElement("div")
-                UnreadMessageMarkerInner.className = "unread-message-marker-inner"
-                if (!Message.read)
-                    UnreadMessageMarker.appendChild(UnreadMessageMarkerInner)
-                else
-                    UnreadMessageMarker.style.width = "5vw"
+    const NamesFound = []
+    let Iter = 0;
+    let docid = -1
+    let StartingHeight = MessageContainer.scrollHeight
+    let ForceLastMessage;
+    for (const Message of json.data) {
+        if (!(NamesFound.includes(Message.name)))
+            NamesFound.push(Message.name)
+        docid = Message.docid
+        let AddTail = true;
+        if (json.data[Iter + 1]) {
+            if (json.data[Iter + 1].sender == Message.sender)
+                AddTail = false
+        }
+        let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, AddTail)
+        for (const Bubble of Bubbles) {
+            Bubble.classList.add("message-visible")
+            if (Message.sender == 1)
+                ForceLastMessage = Bubble
+            MessageContainer.append(Bubble)
+        }
+        Iter++
+    }
+    let EndingHeight = MessageContainer.scrollHeight
+    MessageContainer.scrollTop += EndingHeight - StartingHeight;
 
-                const MessageContainer = document.createElement("div")
-                MessageContainer.className = "homepage-message"
-
-                const UserAvatar = document.createElement("img")
-                UserAvatar.src = "./assets/default-user.png"
-
-                let OutputImage = false;
-                const ContactImageEndpoint = `${Settings.useHttps ? "https" : "http"}://${Settings.host}:${Settings.port}/contactimg?docid=${Message.docid}`;
-                if (GetCachedContactImg(ContactImageEndpoint)) {
-                    OutputImage = GetCachedContactImg(ContactImageEndpoint).imageResponse
-                }
-                else {
-                    const ContactImageResponse = await fetch(ContactImageEndpoint)
-                    OutputImage = await ContactImageResponse.text()
-                    AddCachedContactImg(ContactImageEndpoint, OutputImage.length > 0)
-                }
-                if (OutputImage) {
-                    UserAvatar.src = ContactImageEndpoint
-                }
-                UserAvatar.className = "user-avatar privacy-hidden"
-                if (((input) => {
-                    return /^[a-zA-Z\s]*$/.test(input) && !OutputImage;
-                })(Message.author)) {
-                    const UserAvatarLetters = document.createElement("div")
-                    UserAvatarLetters.className = "user-avatar privacy-hidden"
-                    UserAvatarLetters.textContent = (() => {
-                        const words = Message.author.toString().split(' ');
-                        let initials = '';
-                        words.forEach(word => {
-                            initials += word.charAt(0).toUpperCase();
-                        });
-                        if (initials.length > 2)
-                            initials = initials.substring(0, 1);
-                        return initials;
-                    })()
-                    MessageContainer.appendChild(UserAvatarLetters)
-                }
-                else {
-                    MessageContainer.appendChild(UserAvatar)
-                }
-
-                const MessageContentContainer = document.createElement("div")
-                MessageContentContainer.className = "homepage-message-content-container"
-                const MessageAuthor = document.createElement("p");
-                MessageAuthor.className = "homepage-message-author";
-                if (JSON.parse(localStorage.getItem("clientSettings")).uiPrivate)
-                    MessageAuthor.classList.add("privacy-hidden")
-                MessageAuthor.textContent = /^[\d+]+$/.test(Message.author) ? FormatPhoneNumber(Message.author) : Message.author;
-                MessageContentContainer.appendChild(MessageAuthor)
-                const MessageContent = document.createElement("p");
-                MessageContent.className = "homepage-message-content";
-                if (JSON.parse(localStorage.getItem("clientSettings")).uiPrivate)
-                    MessageContent.classList.add("privacy-hidden")
-                MessageContent.innerHTML = (Message.text == "\ufffc") ? "<em>Media</em>" : ((Message.text.length > 30) ? (Message.text.substring(0, 30).trim() + "...") : Message.text);
-                MessageContentContainer.appendChild(MessageContent)
-
-                const Timestamp = document.createElement("div")
-                Timestamp.className = "homepage-message-time"
-                const TimestampText = document.createElement("span")
-                TimestampText.className = "homepage-message-time-text"
-                TimestampText.textContent = ((Ts) => {
-                    const Dt = new Date(Ts)
-                    if (Math.abs(Ts - Date.now()) > 1000 * 60 * 60 * 24 * 2) {
-                        return `${Dt.getMonth() + 1}/${Dt.getDate()}/${Dt.getFullYear().toString().substring(2)}`
-                    }
-                    else if (Math.abs(Ts - Date.now()) > 1000 * 60 * 60 * 24) {
-                        return `Yesterday`
-                    }
-                    return GetTime(Ts)
-                })(Message.date)
-                const TimestampChevron = document.createElement("span")
-                TimestampChevron.className = "homepage-message-time-icon"
-                TimestampChevron.textContent = "􀆊"
-                Timestamp.appendChild(TimestampText)
-                Timestamp.appendChild(TimestampChevron)
-
-                MessageContainer.appendChild(MessageContentContainer)
-                MessageContainer.appendChild(Timestamp)
-
-                HomepageMessageContainer.appendChild(UnreadMessageMarker)
-                HomepageMessageContainer.appendChild(MessageContainer)
+    const UserImageContainer = document.getElementById("user-avatar-container")
+    while (UserImageContainer.firstChild)
+        UserImageContainer.firstChild.remove()
 
 
-                if (FetchedChatsOnce)
-                    HomepageMessageContainer.classList.add("homepage-message-container-visible")
-                MessagesContainer.appendChild(HomepageMessageContainer)
-                if (!FetchedChatsOnce) {
-                    await new Promise(r => setTimeout(r, 100));
-                    HomepageMessageContainer.classList.add("homepage-message-container-visible")
-                }
-            }
-            FetchedChatsOnce = true;
-            break;
-        case "fetchMessages":
-            json.data = json.data.reverse();
+    const ContactImageEndpoint = `${Settings.useHttps ? "https" : "http"}://${Settings.host}:${Settings.port}/contactimg?docid=${docid}`;
+    const UserAvatar = document.createElement("img")
+    UserAvatar.src = ContactImageEndpoint
+    UserAvatar.className = "user-avatar message-user-avatar privacy-hidden"
+    UserAvatar.addEventListener("error", () => {
+        if (((input) => {
+            return /^[a-zA-Z\s]*$/.test(input);
+        })(NamesFound[0])) {
+            const UserAvatarLetters = document.createElement("div")
+            UserAvatarLetters.className = "user-avatar message-user-avatar privacy-hidden"
+            UserAvatarLetters.textContent = (() => {
+                const words = NamesFound[0].toString().split(' ');
+                let initials = '';
+                words.forEach(word => {
+                    initials += word.charAt(0).toUpperCase();
+                });
+                if (initials.length > 2)
+                    initials = initials.substring(0, 1);
+                return initials;
+            })()
+            UserImageContainer.appendChild(UserAvatarLetters)
+            UserAvatar.remove()
+        }
+        else {
+            UserAvatar.src = "./assets/default-user.png"
+        }
+    })
+    UserImageContainer.appendChild(UserAvatar)
 
-            const NamesFound = []
-            let Iter = 0;
-            let docid = -1
-            for (const Message of json.data) {
-                if (!(NamesFound.includes(Message.name)))
-                    NamesFound.push(Message.name)
-                docid = Message.docid
-                let AddTail = true;
-                if (json.data[Iter + 1]) {
-                    if (json.data[Iter + 1].sender == Message.sender)
-                        AddTail = false
-                }
-                let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, AddTail)
-                for (const Bubble of Bubbles) {
-                    MessageContainer.append(Bubble)
-                    Bubble.classList.add("message-visible")
-                }
-                Iter++
-            }
+    document.getElementById("contact-name").textContent = (() => {
+        let NamesOut = ""
+        for (let i = 0; i < NamesFound.length; i++) {
+            NamesOut += /^[\d+]+$/.test(NamesFound[i]) ? FormatPhoneNumber(NamesFound[i]) : NamesFound[i]
+            if (i < NamesFound.length - 1)
+                NamesOut += ", "
+        }
+        return NamesOut
+    })();
 
-            const UserImageContainer = document.getElementById("user-avatar-container")
-            while (UserImageContainer.firstChild)
-                UserImageContainer.firstChild.remove()
+    RefreshMessageStatus(json, ForceLastMessage)
+    ApplyTimestamps(json)
+    ApplyReactions(json)
+}
 
-            const UserAvatar = document.createElement("img")
+const LoadFetchedChats = async (json) => {
+    let Settings = JSON.parse(localStorage.getItem("serverSettings"))
+    const MessagesContainer = document.getElementById("homepage-contacts")
+    while (MessagesContainer.firstChild)
+        MessagesContainer.firstChild.remove();
+    const Messages = json.data
+    for (const Message of Messages) {
+        const HomepageMessageContainer = document.createElement("div")
+        HomepageMessageContainer.className = "homepage-message-container"
+        HomepageMessageContainer.addEventListener("click", () => {
+            SwapTab(1, `loadmsg:${Message.address}`)
+        })
 
-            let OutputImage = false;
-            const ContactImageEndpoint = `${Settings.useHttps ? "https" : "http"}://${Settings.host}:${Settings.port}/contactimg?docid=${docid}`;
-            if (GetCachedContactImg(ContactImageEndpoint)) {
-                OutputImage = GetCachedContactImg(ContactImageEndpoint).imageResponse
-            }
-            else {
-                const ContactImageResponse = await fetch(ContactImageEndpoint)
-                OutputImage = await ContactImageResponse.text()
-                AddCachedContactImg(ContactImageEndpoint, OutputImage.length > 0)
-            }
-            if (OutputImage) {
-                UserAvatar.src = ContactImageEndpoint
-            }
-            UserAvatar.className = "user-avatar message-user-avatar privacy-hidden"
+        const UnreadMessageMarker = document.createElement("div")
+        UnreadMessageMarker.className = "unread-message-marker"
+        const UnreadMessageMarkerInner = document.createElement("div")
+        UnreadMessageMarkerInner.className = "unread-message-marker-inner"
+        if (!Message.read)
+            UnreadMessageMarker.appendChild(UnreadMessageMarkerInner)
+        else
+            UnreadMessageMarker.style.width = "5vw"
+
+        const MessageContainer = document.createElement("div")
+        MessageContainer.className = "homepage-message"
+
+        const UserAvatar = document.createElement("img")
+        UserAvatar.src = "./assets/default-user.png"
+
+        const ContactImageEndpoint = `${Settings.useHttps ? "https" : "http"}://${Settings.host}:${Settings.port}/contactimg?docid=${Message.docid}`;
+        UserAvatar.src = ContactImageEndpoint
+        UserAvatar.addEventListener("error", () => {
             if (((input) => {
-                return /^[a-zA-Z\s]*$/.test(input) && !OutputImage;
-            })(NamesFound[0])) {
+                return /^[a-zA-Z\s]*$/.test(input);
+            })(Message.author)) {
                 const UserAvatarLetters = document.createElement("div")
-                UserAvatarLetters.className = "user-avatar message-user-avatar privacy-hidden"
+                UserAvatarLetters.className = "user-avatar privacy-hidden"
                 UserAvatarLetters.textContent = (() => {
-                    const words = NamesFound[0].toString().split(' ');
+                    const words = Message.author.toString().split(' ');
                     let initials = '';
                     words.forEach(word => {
                         initials += word.charAt(0).toUpperCase();
@@ -810,35 +818,90 @@ const ProcessResponse = async (json) => {
                         initials = initials.substring(0, 1);
                     return initials;
                 })()
-                UserImageContainer.appendChild(UserAvatarLetters)
+                MessageContainer.insertBefore(UserAvatarLetters, UserAvatar)
+                UserAvatar.remove()
             }
             else {
-                UserImageContainer.appendChild(UserAvatar)
+                UserAvatar.src = "./assets/default-user.png"
             }
+        })
+        UserAvatar.className = "user-avatar privacy-hidden"
+        MessageContainer.appendChild(UserAvatar)
 
-            document.getElementById("contact-name").textContent = (() => {
-                let NamesOut = ""
-                for (let i = 0; i < NamesFound.length; i++) {
-                    NamesOut += /^[\d+]+$/.test(NamesFound[i]) ? FormatPhoneNumber(NamesFound[i]) : NamesFound[i]
-                    if (i < NamesFound.length - 1)
-                        NamesOut += ", "
-                }
-                return NamesOut
-            })();
-            RefreshMessageStatus(json)
+        const MessageContentContainer = document.createElement("div")
+        MessageContentContainer.className = "homepage-message-content-container"
+        const MessageAuthor = document.createElement("p");
+        MessageAuthor.className = "homepage-message-author";
+        if (JSON.parse(localStorage.getItem("clientSettings")).uiPrivate)
+            MessageAuthor.classList.add("privacy-hidden")
+        MessageAuthor.textContent = /^[\d+]+$/.test(Message.author) ? FormatPhoneNumber(Message.author) : Message.author;
+        MessageContentContainer.appendChild(MessageAuthor)
+        const MessageContent = document.createElement("p");
+        MessageContent.className = "homepage-message-content";
+        if (JSON.parse(localStorage.getItem("clientSettings")).uiPrivate)
+            MessageContent.classList.add("privacy-hidden")
+        MessageContent.innerHTML = (Message.text == "\ufffc") ? "<em>Media</em>" : ((Message.text.length > 30) ? (Message.text.substring(0, 30).trim() + "...") : Message.text);
+        MessageContentContainer.appendChild(MessageContent)
+
+        const Timestamp = document.createElement("div")
+        Timestamp.className = "homepage-message-time"
+        const TimestampText = document.createElement("span")
+        TimestampText.className = "homepage-message-time-text"
+        TimestampText.textContent = ((Ts) => {
+            const Dt = new Date(Ts)
+            if (Math.abs(Ts - Date.now()) > 1000 * 60 * 60 * 24 * 2) {
+                return `${Dt.getMonth() + 1}/${Dt.getDate()}/${Dt.getFullYear().toString().substring(2)}`
+            }
+            else if (Math.abs(Ts - Date.now()) > 1000 * 60 * 60 * 24) {
+                return `Yesterday`
+            }
+            return GetTime(Ts)
+        })(Message.date)
+        const TimestampChevron = document.createElement("span")
+        TimestampChevron.className = "homepage-message-time-icon"
+        TimestampChevron.textContent = "􀆊"
+        Timestamp.appendChild(TimestampText)
+        Timestamp.appendChild(TimestampChevron)
+
+        MessageContainer.appendChild(MessageContentContainer)
+        MessageContainer.appendChild(Timestamp)
+
+        HomepageMessageContainer.appendChild(UnreadMessageMarker)
+        HomepageMessageContainer.appendChild(MessageContainer)
+        HomepageMessageContainer.classList.add("homepage-message-container-visible")
+        MessagesContainer.appendChild(HomepageMessageContainer)
+    }
+}
+
+const ProcessResponse = async (json) => {
+    switch (json.action) {
+        case "fetchChats":
+
+            SetPrefetchedContacts(json)
+            await LoadFetchedChats(json)
+
+            break;
+        case "fetchMessages":
+
+            SetPrefetchedMessage(CurrentChatNumber, json)
+            await LoadFetchedMessages(json)
+
             break;
         case "newMessage":
             for (const Message of json.data.message) {
                 if (Message.chatId == CurrentChatNumber) {
                     if (Message.sender == 0) {
+                        let StartingHeight = MessageContainer.scrollHeight
                         let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, true);
                         for (const Bubble of Bubbles) {
                             MessageContainer.append(Bubble)
-                            MessageContainer.scrollTop = MessageContainer.scrollHeight;
                             Bubble.classList.add("message-visible")
                         }
+                        let EndingHeight = MessageContainer.scrollHeight
+                        MessageContainer.scrollTop += EndingHeight - StartingHeight;
                     }
                     else {
+                        let StartingHeight = MessageContainer.scrollHeight
                         let Bubbles = CreateMessageBubble(false, Message, Message.text, Message.sender, true);
                         for (const Bubble of Bubbles) {
                             Bubble.classList.add("message-visible")
@@ -847,7 +910,8 @@ const ProcessResponse = async (json) => {
                         if (LastMessageSent) {
                             LastMessageSent.remove()
                         }
-                        MessageContainer.scrollTop = MessageContainer.scrollHeight;
+                        let EndingHeight = MessageContainer.scrollHeight
+                        MessageContainer.scrollTop += EndingHeight - StartingHeight;
                     }
                 }
                 else {
@@ -869,25 +933,20 @@ const ProcessResponse = async (json) => {
 
                 }
             }
-            RefreshMessageStatus(json);
             break;
         case "setTypingIndicator":
             SetTypingIndicator(json.data.typing)
             break;
         case "newReaction":
+            ApplyReactions(json)
             break;
         case "setAsRead":
-            if (json.data.guid) {
-                RefreshMessageStatus(json);
-            }
+            RefreshMessageStatus(json)
             break;
         default:
             console.error(`Unhandled JSON: `, json)
             break;
     }
-
-    ApplyTimestamps(json)
-    ApplyReactions(json)
 
     // Scroll to bottom
     //MessageContainer.scrollTop = MessageContainer.scrollHeight;
@@ -930,31 +989,30 @@ const SwapTab = (TabNum, Intent = "") => {
     }
 }
 
-const RefreshMessageStatus = async (json) => {
+const GetMostRecentMessage = (guid) => {
+    const Messages = document.getElementsByClassName("message")
+    let LastMessage;
+    for (let x = 0; x < Messages.length; x++) {
+        const RawData = JSON.parse(Messages[x].getAttribute("rawjson"))
+        if (RawData && RawData.sender == 1) {
+            LastMessage = Messages[x]
+        }
+    }
+    return LastMessage
+}
 
+const GetMessageByGuid = (guid) => {
+    const Messages = document.getElementsByClassName("message")
+    for (let x = 0; x < Messages.length; x++) {
+        const RawData = JSON.parse(Messages[x].getAttribute("rawjson"))
+        if (RawData.guid == guid)
+            return Messages[x]
+    }
+}
+
+const RefreshMessageStatus = async (json, ForceLastMessage) => {
     if (json.action == "setAsRead" && json.data.read == 0)
         return;
-
-    const GetMostRecentMessage = (guid) => {
-        const Messages = document.getElementsByClassName("message")
-        let LastMessage;
-        for (let x = 0; x < Messages.length; x++) {
-            const RawData = JSON.parse(Messages[x].getAttribute("rawjson"))
-            if (RawData && RawData.sender == 1) {
-                LastMessage = Messages[x]
-            }
-        }
-        return LastMessage
-    }
-
-    const GetMessageByGuid = (guid) => {
-        const Messages = document.getElementsByClassName("message")
-        for (let x = 0; x < Messages.length; x++) {
-            const RawData = JSON.parse(Messages[x].getAttribute("rawjson"))
-            if (RawData.guid == guid)
-                return Messages[x]
-        }
-    }
 
     if (json.action == "fetchMessages") {
         while (document.getElementsByClassName("message-receipt-delivered")[0])
@@ -989,6 +1047,8 @@ const RefreshMessageStatus = async (json) => {
             else
                 MessageContainer.appendChild(NewIndicator)
         }
+        if (ForceLastMessage)
+            LastDelivered = ForceLastMessage
         if (LastDelivered && (LastRead != LastDelivered)) {
             const NewIndicator = document.createElement("div")
             NewIndicator.className = "message-receipt message-receipt-delivered"
@@ -1097,6 +1157,7 @@ const ApplyReactions = async (json) => {
     }
     while (document.getElementsByClassName("message-reaction")[0])
         document.getElementsByClassName("message-reaction")[0].remove();
+    let StartingHeight = MessageContainer.scrollTop
     for (let i = 0; i < Messages.length; i++) {
         let json = JSON.parse(Messages[i].getAttribute("rawjson"))
         if (json.reactions) {
@@ -1145,17 +1206,20 @@ const ApplyReactions = async (json) => {
             }
         }
     }
+    let EndingHeight = MessageContainer.scrollHeight
+    MessageContainer.scrollTop += EndingHeight - StartingHeight;
 }
 
 const ApplyTimestamps = (json) => {
     while (document.getElementsByClassName("message-timestamp-header")[0])
         document.getElementsByClassName("message-timestamp-header")[0].remove();
+    let StartingHeight = MessageContainer.scrollTop
     let Messages = document.getElementsByClassName("message")
     let LastMessageTimestamp = 0
     for (let i = 0; i < Messages.length; i++) {
         let json = JSON.parse(Messages[i].getAttribute("rawjson"))
-        if (json.dateDelivered <= 0) continue;
-        if ((json.dateDelivered - LastMessageTimestamp) > 1000 * 60 * 60) { // > 1hr
+        if (json.date <= 0) continue;
+        if ((json.date - LastMessageTimestamp) > 1000 * 60 * 60) { // > 1hr
             let MessageTimestampContainer = document.createElement("div")
             MessageTimestampContainer.className = "message-timestamp-header"
 
@@ -1172,22 +1236,24 @@ const ApplyTimestamps = (json) => {
                 else {
                     return `Today`
                 }
-            })(json.dateDelivered)
+            })(json.date)
             let MessageTimestampTime = document.createElement("span")
-            MessageTimestampTime.textContent = `, ${GetTime(json.dateDelivered)}`
+            MessageTimestampTime.textContent = ` ${GetTime(json.date)}`
 
             MessageTimestampContainer.appendChild(MessageTimestampDate)
             MessageTimestampContainer.appendChild(MessageTimestampTime)
             MessageContainer.insertBefore(MessageTimestampContainer, Messages[i])
         }
-        else if ((json.dateDelivered - LastMessageTimestamp) > 1000 * 60 * 10) { // > 10min
+        else if ((json.date - LastMessageTimestamp) > 1000 * 60 * 10) { // > 10min
             let MessageTimestampContainer = document.createElement("div")
             MessageTimestampContainer.className = "message-timestamp-header"
             MessageContainer.insertBefore(MessageTimestampContainer, Messages[i])
         }
 
-        LastMessageTimestamp = json.dateDelivered
+        LastMessageTimestamp = json.date
     }
+    let EndingHeight = MessageContainer.scrollHeight
+    MessageContainer.scrollTop += EndingHeight - StartingHeight;
 }
 
 SwapTab(0)
@@ -1209,3 +1275,8 @@ setInterval(() => {
         }
     }
 }, 60000);
+
+console.log(GetPrefetchedContacts())
+if (GetPrefetchedContacts()) {
+    LoadFetchedChats(GetPrefetchedContacts())
+}

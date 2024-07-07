@@ -54,44 +54,31 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 - [x] Sending iMessages
 - [x] Receiving iMessages
 
-### Landing page
-- [x] Contact search box
-- [x] Contact list
-  - [x] Shows last message timestamp
-  - [x] Shows custom contact images
-    - See *Note 1*.
-  - [x] Updates when receiving new messages
-  - [ ] Shows typing indicators
-- [ ] Create new message to new phone number
-- [x] Show "unread" indicator
-  - [x] Updates automatically
-
-### Message page
-- [x] Shows custom contact images
-  - See *Note 1*.
-- [x] Shows contact name
-- [x] Back button (header)
-- [ ] FaceTime
-     
 ### Typing indicators
-- [x] Sends typing indicators to recipient
-- [x] Receives typing indicators from recipient
-  - [x] Finished UI implementation
-     
-### Message loading
-- [x] Requests/receives list of contacts and messages
-- [x] Requests/receives list of messages (for specific Chat)
-  - [ ] Loads more messages when scrolling up/down
-- [ ] Displays loading screen
+- [x] Receive/view typing indicators
+- [x] Send typing indicators (optional)
 
-### Message receipts
-- [x] Receives/sends message **Read** statuses
-- [x] Receives/sends message **Delivered** statuses
+### Reactions
+- [x] Add reactions
+- [x] Remove reactions
+- [x] View reactions from others
 
-### Message timestamps
-- [x] Receives per-message timestamps
-- [x] Times are shown correctly on UI
-- [x] Small space is shown between messages that are >10min apart
+### Receipts
+- [x] Message "Delivered" receipts 
+- [x] Receive "Read" receipts
+- [x] Send read receipts (optional) 
+
+### Contacts
+- [x] Contact names
+- [x] Contact profile pictures
+  - [x] Custom picture support
+  - [x] Placeholder images using contact name initials
+
+### Additional iMessage features
+- [x] Receive/view messages with Subject line
+- [x] Send messages with Subject line
+- [ ] iMessage Apps/Games
+  - See *Note 2*.
 
 ### Message attachments
 - Images
@@ -104,13 +91,7 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 - Other media types
   - [ ] Receive/display
   - [ ] Send
-
-### Message reactions
-- [x] Adding reactions
-- [ ] Removing reactions
-- [x] Receiving reactions
-- [x] Receiving reaction removals
-     
+  
 ### Message editing/deleting
 - [x] Recipient edits messages
 - [x] Recipient deletes messages
@@ -118,13 +99,10 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 - [ ] Deleting own messages
 - *Cannot be implemented as message editing/deletion is not supported on iOS 12. This client still shows a "Edited '<message>'" or "Deleted '<message>'" but this cannot be changed/fixed as these messages are sent from the recipient iPhone when it detects that the server device does not support these features.*
 
-### UI Animations
-- [x] Page swapping
-- [x] Typing indicators
-- [x] Message reactions popup
-- [ ] New reaction
-- [x] New message
-- [x] New message receipts
-
 ### Notes
 1. Images and other media content will refuse to load on browsers that force upgrading insecure (http) requests. Should work fine in http-only contexts, or when using a custom certificate.
+2. iMessage apps/games modals are displayed correctly in this client, but currently cannot be interacted with.
+
+### Known bugs/other
+1. Messages currently do not continue to load after scrolling upward.
+2. All forms of message notifications are unavailable, as each implementation is highly platform-dependent.
