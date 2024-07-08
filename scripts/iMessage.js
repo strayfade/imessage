@@ -917,13 +917,18 @@ const LoadFetchedChats = async (json) => {
         TimestampText.className = "homepage-message-time-text"
         TimestampText.textContent = ((Ts) => {
             const Dt = new Date(Ts)
-            if (Math.abs(Ts - Date.now()) > 1000 * 60 * 60 * 24 * 2) {
+            if (Date.now() - Ts > 1000 * 60 * 60 * 24 * 7) {
                 return `${Dt.getMonth() + 1}/${Dt.getDate()}/${Dt.getFullYear().toString().substring(2)}`
             }
-            else if (Math.abs(Ts - Date.now()) > 1000 * 60 * 60 * 24) {
+            else if (Date.now() - Ts > 1000 * 60 * 60 * 24 * 2) {
+                return `${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][Dt.getDay()]}`
+            }
+            else if (Date.now() - Ts > 1000 * 60 * 60 * 24) {
                 return `Yesterday`
             }
-            return GetTime(Ts)
+            else {
+                return GetTime(Ts)
+            }
         })(Message.date)
         const TimestampChevron = document.createElement("span")
         TimestampChevron.className = "homepage-message-time-icon"
@@ -1303,10 +1308,14 @@ const ApplyTimestamps = (json) => {
             MessageTimestampDate.className = "message-date"
             MessageTimestampDate.textContent = ((Ts) => {
                 const Dt = new Date(Ts)
-                if (Math.abs(Ts - Date.now()) > 1000 * 60 * 60 * 24 * 2) {
+                if (Date.now() - Ts > 1000 * 60 * 60 * 24 * 7) {
                     return `${Dt.getMonth() + 1}/${Dt.getDate()}/${Dt.getFullYear().toString().substring(2)}`
                 }
-                else if (Math.abs(Ts - Date.now()) > 1000 * 60 * 60 * 24) {
+                else if (Date.now() - Ts > 1000 * 60 * 60 * 24 * 2) {
+                    return `${["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][Dt.getDay()]
+                        }`
+                }
+                else if (Date.now() - Ts > 1000 * 60 * 60 * 24) {
                     return `Yesterday`
                 }
                 else {
