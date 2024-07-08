@@ -24,7 +24,7 @@
     border-radius: 25px;
     transition-duration: 0.25s;
     cursor: pointer;
-    font-weight: bolder;
+    font-weight: 900;
 }
 .reaction-popup span:hover,
 .reaction-popup .reaction-popup-selected {

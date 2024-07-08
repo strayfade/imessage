@@ -8,7 +8,7 @@
     aspect-ratio: 1/1;
     width: 18px;
     text-align: center;
-    font-weight: bolder;
+    font-weight: 900;
     transform: scale(0);
     transition-duration: 0.5s;
     pointer-events: none;
