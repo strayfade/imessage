@@ -540,7 +540,8 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
         if (MessageJSON.text == "\ufffc") {
             const Attachments = MessageJSON.attachments
             for (const Attachment of Attachments) {
-                let MessageContentItem = document.createElement("img")
+                let Type = Attachment[1].includes("image") ? "img" : (Attachment[1].includes("video") ? "video" : "div");
+                let MessageContentItem = document.createElement(Type)
                 MessageContentItem.addEventListener("load", () => {
                     MessageContainer.scrollTop = MessageContainer.scrollHeight;
                 })
@@ -548,8 +549,15 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
                 MessageContentItem.className = "message"
                 MessageContentItem.classList.add("message-media")
                 MessageContentItem.classList.add(Sender ? "message-sender" : "message-recipient")
-                if (ServerSettings) {
+                if (ServerSettings && Type == "img") {
                     MessageContentItem.src = `${ServerSettings.useHttps ? "https" : "http"}://${ServerSettings.host}:${ServerSettings.port}/attachments?path=${encodeURIComponent(Attachment[0])}&type=${encodeURIComponent(Attachment[1])}&auth=${ServerSettings.password}&transcode=1`
+                }
+                else if (ServerSettings && Type == "video") {
+                    let SourceObject = document.createElement("source")
+                    SourceObject.src = `${ServerSettings.useHttps ? "https" : "http"}://${ServerSettings.host}:${ServerSettings.port}/attachments?path=${encodeURIComponent(Attachment[0])}&type=${encodeURIComponent(Attachment[1])}&auth=${ServerSettings.password}&transcode=1`
+                    SourceObject.type = Attachment[1]
+                    MessageContentItem.appendChild(SourceObject)
+                    MessageContentItem.setAttribute("controls", true)
                 }
                 OutMessages.push(MessageContentItem)
             }
