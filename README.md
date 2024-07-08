@@ -79,6 +79,7 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
 - [x] Send messages with Subject line
 - [ ] iMessage Apps/Games
   - See *Note 2*.
+- [ ] Pinned/favorited contacts
 
 ### Message attachments
 - Images
