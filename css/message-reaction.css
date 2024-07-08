@@ -1,34 +1,70 @@
 .message-reaction {
     position: absolute;
-    top: -21px;
+    top: -17.5px;
     border-radius: 30px;
+    border: 1px solid var(--background-0);
     padding: 5px;
-    font-size: 14px;
-    border: 4px solid var(--background-0);
+    font-size: 12px;
     aspect-ratio: 1/1;
     width: 18px;
     text-align: center;
     font-weight: bolder;
-    transform: scale(0%);
+    transform: scale(0);
     transition-duration: 0.5s;
     pointer-events: none;
+    padding-top: 6px;
+    height: 18px;
+    padding-bottom: 4px;
 }
 
 .message-reaction-visible {
     transform: scale(100%);
 }
 
-.message-reaction-sender-color {
+.message-reaction-sender-color,
+.message-reaction-sender-color * {
     background: var(--recipient);
     color: var(--foreground-0);
 }
-.message-reaction-recipient-color {
-    background: var(--accent);  
+.message-reaction-recipient-color,
+.message-reaction-recipient-color * {
+    background: var(--accent);
     color: white;
 }
 .message-reaction-sender {
-    left: -21px;
+    left: -17.5px;
 }
 .message-reaction-recipient {
-    right: -21px;
+    right: -17.5px;
+}
+
+.message-reaction-dot {
+    position: absolute;
+    border-radius: 30px;
+}
+
+
+.message-reaction-sender .message-reaction-dot-1 {
+    width: 35%;
+    height: 35%;
+    bottom: -1px;
+    left: -1px;
+}
+.message-reaction-sender .message-reaction-dot-2 {
+    width: calc(35% / 2);
+    height: calc(35% / 2);
+    bottom: -5px;
+    left: -5px;
+}
+.message-reaction-recipient .message-reaction-dot-1 {
+    width: 35%;
+    height: 35%;
+    bottom: -1px;
+    right: -1px;
+}
+.message-reaction-recipient .message-reaction-dot-2 {
+    width: calc(35% / 2);
+    height: calc(35% / 2);
+    bottom: -5px;
+    right: -5px;
 }

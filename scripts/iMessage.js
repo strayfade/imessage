@@ -656,6 +656,31 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
                 CloneMessage.style.right = `${window.visualViewport.width - MessageArea.right - 12}px`
             else
                 CloneMessage.style.left = `${MessageArea.left - 12}px`
+            await new Promise(r => setTimeout(r, 100));
+            CloneMessage.classList.add("message-clone-visible")
+
+            const OrbContainer = document.createElement("div")
+            OrbContainer.className = "popup-orb-container"
+            OrbContainer.classList.add(Sender ? "message-orb-container-sender" : "message-orb-container-recipient")
+            ReactionPopup.appendChild(OrbContainer)
+            const Orb1 = document.createElement("div")
+            Orb1.className = "popup-orb popup-orb-1"
+            OrbContainer.appendChild(Orb1)
+            const Orb2 = document.createElement("div")
+            Orb2.className = "popup-orb popup-orb-2"
+            OrbContainer.appendChild(Orb2)
+            const GetX = () => {
+                let MessageBounds = CloneMessage.getBoundingClientRect();
+                return MessageBounds.right - MessageBounds.left
+            }
+            if (Sender) {
+                Orb1.style.right = `${GetX() - 4}px`
+                Orb2.style.right = `${GetX() + 13}px`
+            }
+            else {
+                Orb1.style.left = `${GetX() - 4}px`
+                Orb2.style.left = `${GetX() + 13}px`
+            }
 
             let CurrentReactions = JSON.parse(MessageContentItem.getAttribute("rawjson")).reactions
             for (let x = 0; x < CurrentReactions.length; x++) {
@@ -1182,7 +1207,14 @@ const ApplyReactions = async (json) => {
                 MessageReactionObject.className = "message-reaction"
                 MessageReactionObject.classList.add(json.sender == 1 ? "message-reaction-sender" : "message-reaction-recipient")
                 MessageReactionObject.classList.add(LastReaction.sender == 0 ? "message-reaction-sender-color" : "message-reaction-recipient-color")
-                MessageReactionObject.textContent = ((text) => {
+                let Dot1 = document.createElement("div")
+                Dot1.className = "message-reaction-dot message-reaction-dot-1"
+                MessageReactionObject.appendChild(Dot1)
+                let Dot2 = document.createElement("div")
+                Dot2.className = "message-reaction-dot message-reaction-dot-2"
+                MessageReactionObject.appendChild(Dot2)
+                let TextContainer = document.createElement("div")
+                TextContainer.textContent = ((text) => {
                     switch (text) {
                         case 2000:
                             return "􀊵";
@@ -1205,6 +1237,7 @@ const ApplyReactions = async (json) => {
                     }
                     return "..."
                 })(LastReaction.reactionType)
+                MessageReactionObject.appendChild(TextContainer)
                 if (json.action != "newReaction") {
                     MessageReactionObject.classList.add("message-reaction-visible")
                 }

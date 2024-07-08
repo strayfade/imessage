@@ -6,7 +6,6 @@
     border-radius: 100px;
     display: flex;
     z-index: 10;
-    box-shadow: 0px 2px 10px rgba(0, 0, 0, 0.2);
     opacity: 0;
     transition-duration: 0.5s;
     pointer-events: none;
@@ -27,7 +26,44 @@
     cursor: pointer;
     font-weight: bolder;
 }
-.reaction-popup span:hover, .reaction-popup .reaction-popup-selected {
+.reaction-popup span:hover,
+.reaction-popup .reaction-popup-selected {
     color: white;
     background-color: var(--accent);
+}
+
+.popup-orb-container {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+}
+.popup-orb-container-inner {
+    position: relative;
+}
+.popup-orb {
+    border-radius: 100px;
+    position: absolute;
+    background-color: var(--recipient);
+}
+.popup-orb-1 {
+    height: 20px;
+    width: 20px;
+}
+.popup-orb-2 {
+    height: 10px;
+    width: 10px;
+}
+.message-orb-container-recipient .popup-orb-1 {
+    bottom: -10px;
+}
+.message-orb-container-sender .popup-orb-1 {
+    bottom: -10px;
+}
+.message-orb-container-recipient .popup-orb-2 {
+    bottom: -20px
+}
+.message-orb-container-sender .popup-orb-2 {  
+    bottom: -20px;
 }
