@@ -90,7 +90,7 @@ This setup requires a jailbroken iPhone with root access. For my tests and devel
     - See *Note 1*.
   - [ ] Send
 - Other media types
-  - [ ] Receive/display
+  - [x] Receive/download
   - [ ] Send
   
 ### Message editing/deleting

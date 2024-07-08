@@ -33,6 +33,14 @@ catch {
         uiSendTyping: true
     }))
 }
+const DownloadFile = (url, filename) => {
+    const anchor = document.createElement('a');
+    anchor.href = url;
+    anchor.download = filename;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+}
 
 const GetPrefetchedMessages = (ContactPhoneNumber) => {
     try {
@@ -559,6 +567,23 @@ const CreateMessageBubble = (TypingIndicator = false, MessageJSON = {}, Message 
                     MessageContentItem.appendChild(SourceObject)
                     MessageContentItem.setAttribute("controls", true)
                 }
+                else if (ServerSettings) {
+                    let FileTypeIconText = document.createElement("p")
+                    FileTypeIconText.className = "file-type-icon-text"
+                    FileTypeIconText.textContent = Attachment[0].split(".")[Attachment[0].split(".").length - 1]
+                    let FileTypeIcon = document.createElement("img")
+                    FileTypeIcon.src = "./assets/file.png"
+                    let FileName = document.createElement("p")
+                    FileName.textContent = Attachment[0].split("/")[Attachment[0].split("/").length - 1]
+                    FileName.className = "file-name"
+                    MessageContentItem.classList.add("message-file")
+                    MessageContentItem.appendChild(FileTypeIcon)
+                    MessageContentItem.appendChild(FileTypeIconText)
+                    MessageContentItem.appendChild(FileName)
+                    MessageContentItem.addEventListener("click", () => {
+                        DownloadFile(`${ServerSettings.useHttps ? "https" : "http"}://${ServerSettings.host}:${ServerSettings.port}/attachments?path=${encodeURIComponent(Attachment[0])}&type=${encodeURIComponent(Attachment[1])}&auth=${ServerSettings.password}&transcode=0`, Attachment[0].split("/")[Attachment[0].split("/").length - 1])
+                    })
+                }
                 OutMessages.push(MessageContentItem)
             }
         }
@@ -883,7 +908,7 @@ const LoadFetchedChats = async (json) => {
         MessageContent.className = "homepage-message-content";
         if (JSON.parse(localStorage.getItem("clientSettings")).uiPrivate)
             MessageContent.classList.add("privacy-hidden")
-        MessageContent.innerHTML = (Message.text == "\ufffc") ? "<em>Media</em>" : ((Message.text.length > 30) ? (Message.text.substring(0, 30).trim() + "...") : Message.text);
+        MessageContent.innerHTML = (Message.text == "\ufffc") ? "<em>Attachment</em>" : ((Message.text.length > 30) ? (Message.text.substring(0, 30).trim() + "...") : Message.text);
         MessageContentContainer.appendChild(MessageContent)
 
         const Timestamp = document.createElement("div")

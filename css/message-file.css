@@ -1,0 +1,18 @@
+.message-file img {
+    width: 75px;
+    height: 75px;
+    margin: 0px auto;
+    display: block;
+}
+.message-file .file-type-icon-text {
+    text-align: center;
+    margin-top: -50px;
+    color: var(--accent);
+    margin-bottom: 30px;
+}
+.message-file .file-name {
+    opacity: 0.5;
+    font-size: 12px;
+    margin: 0px auto 0px auto;
+    text-align: center;
+}
