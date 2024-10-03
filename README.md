@@ -1,5 +1,8 @@
 # iMessage
 
+> [!WARNING]  
+> **This repository is currently not being maintained**, as I have personally started using OpenBubbles with phone number registration. Many features are incomplete, though base functionality should still work.
+
 ### What is this?
 This is an alternate web-based frontend/app for the [WebMessage tweak by sgtaziz](https://github.com/sgtaziz/WebMessage-Tweak) (backend) which aims to directly imitate Apple's "Messages" app.
 
